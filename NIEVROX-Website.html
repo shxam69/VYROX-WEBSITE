@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIEVROX - Future Automation</title>
+    <!-- Premium Fonts: Orbitron (display/headings) + Space Grotesk (body) + Exo 2 (logo) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Exo+2:wght@900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    
+    <!-- Smooth Scroll (Lenis) -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script> 
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    
+    <!-- Three.js Core -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Three.js Post-Processing -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+
+
+    <style>
+        html.lenis { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+        .lenis.lenis-scrolling iframe { pointer-events: none; }
+
+        body { 
+            margin: 0; 
+            background-color: #020202; 
+            overflow-x: hidden; 
+            color: white; 
+            cursor: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            letter-spacing: 0.01em;
+        }
+
+        h1, h2, h3, h4, h5, .scroll-float-text, .orbitron {
+            font-family: 'Orbitron', sans-serif !important;
+            letter-spacing: 0.04em;
+        }
+
+        p, span, label, input, textarea, select, li, a, button {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Boost text brightness globally */
+        .text-gray-400 { color: #c0c0cc !important; }
+        .text-gray-300 { color: #dcdce8 !important; }
+        .text-gray-500 { color: #a0a0ae !important; }
+        .text-gray-600 { color: #888896 !important; }
+
+        /* Logo font — matches the wide geometric style in the reference image */
+        .NIEVROX-logo {
+            font-family: 'Exo 2', sans-serif !important;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        /* --- REGION DROPDOWN --- */
+        .region-dropdown-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 999px;
+            background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.25);
+            color: #d0d0d8; font-size: 12px; font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer; transition: all 0.25s ease; white-space: nowrap;
+            backdrop-filter: blur(12px);
+        }
+        .region-dropdown-btn:hover {
+            background: rgba(168,85,247,0.16); border-color: rgba(168,85,247,0.55);
+            color: white; box-shadow: 0 0 18px rgba(168,85,247,0.2);
+        }
+        .region-dropdown-panel {
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: rgba(6,4,14,0.96); border: 1px solid rgba(168,85,247,0.25);
+            border-radius: 16px; min-width: 260px; padding: 10px;
+            backdrop-filter: blur(24px); box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(168,85,247,0.1);
+            z-index: 600; animation: dropIn 0.18s cubic-bezier(.25,.46,.45,.94);
+        }
+        @keyframes dropIn { from { opacity:0; transform: translateY(-8px) scale(0.97); } to { opacity:1; transform: translateY(0) scale(1); } }
+        .region-option {
+            display: flex; align-items: center; gap: 11px; padding: 10px 12px;
+            border-radius: 10px; cursor: pointer; transition: all 0.15s ease;
+            color: #c0c0cc; font-size: 13px; font-family: 'Space Grotesk', sans-serif;
+        }
+        .region-option:hover { background: rgba(168,85,247,0.1); color: white; }
+        .region-option.active { background: rgba(168,85,247,0.14); color: #A855F7; font-weight: 600; border: 1px solid rgba(168,85,247,0.25); }
+        .region-option .currency-tag {
+            margin-left: auto; font-size: 11px; color: #A855F7;
+            background: rgba(168,85,247,0.1); padding: 2px 8px; border-radius: 6px;
+            font-weight: 600;
+        }
+        .lang-pill {
+            display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
+            border-radius: 999px; background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.18);
+            color: #c0c0cc; font-size: 11px; font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .lang-pill:hover, .lang-pill.active { background: rgba(168,85,247,0.18); border-color: rgba(168,85,247,0.5); color: #A855F7; }
+
+        /* --- PAYMENT DEMO MODAL STYLES --- */
+        @keyframes paySlideUp { from { opacity:0; transform: translateY(24px) scale(0.96); } to { opacity:1; transform: translateY(0) scale(1); } }
+        .pay-modal-card { animation: paySlideUp 0.32s cubic-bezier(.25,.46,.45,.94); }
+        .pay-gateway-btn {
+            width: 100%; padding: 14px 20px; border-radius: 14px; border: 1px solid rgba(168,85,247,0.3);
+            background: rgba(168,85,247,0.07); color: white; font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; gap: 10px; transition: all 0.22s ease; margin-bottom: 10px;
+        }
+        .pay-gateway-btn:hover { background: rgba(168,85,247,0.18); border-color: rgba(168,85,247,0.6); box-shadow: 0 0 22px rgba(168,85,247,0.25); transform: translateY(-1px); }
+        .pay-gateway-btn.cashfree { border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.07); }
+        .pay-gateway-btn.cashfree:hover { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.6); box-shadow: 0 0 22px rgba(34,197,94,0.2); }
+        .pay-gateway-btn.stripe { border-color: rgba(99,102,241,0.35); background: rgba(99,102,241,0.07); }
+        .pay-gateway-btn.stripe:hover { background: rgba(99,102,241,0.16); border-color: rgba(99,102,241,0.6); box-shadow: 0 0 22px rgba(99,102,241,0.2); }
+        .pay-status-success { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 14px; padding: 18px; text-align: center; }
+        .pay-status-failed { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 14px; padding: 18px; text-align: center; }
+        .pay-status-pending { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 14px; padding: 18px; text-align: center; }
+
+        /* --- FAQ TYPOGRAPHY IMPROVEMENTS --- */
+        .faq-q { font-family: 'Space Grotesk', sans-serif !important; font-size: 15px !important; font-weight: 600 !important; letter-spacing: -0.02em; line-height: 1.45; }
+        .faq-a { font-family: 'Space Grotesk', sans-serif !important; font-size: 14px !important; line-height: 1.7 !important; color: #b0b0c0 !important; }
+
+        /* RTL support for Arabic */
+        [dir="rtl"] { text-align: right; }
+        [dir="rtl"] .flex { flex-direction: row-reverse; }
+        [dir="rtl"] .space-y-4 > * { margin-right: 0; }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #020202; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #A855F7; }
+        
+        /* GPU acceleration */
+        .laser-flow-container { 
+            width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 0; pointer-events: none; 
+            will-change: transform; 
+            transform: translateZ(0); 
+        }
+        .ghost-cursor-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; mix-blend-mode: screen; 
+            will-change: transform;
+            transform: translateZ(0);
+        }
+        .scroll-float { overflow: hidden; }
+        .scroll-float-text { display: inline-block; font-size: 10vw; font-weight: 900; font-family: 'Exo 2', sans-serif !important; letter-spacing: 0.08em; text-align: center; line-height: 1; color: white; mix-blend-mode: screen; text-transform: uppercase; }
+        .char { display: inline-block; }
+        
+        /* Softer Glows */
+        .glow-visible { box-shadow: 0 0 25px rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.2); }
+        .plan-card-glow { 
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            will-change: transform, box-shadow; 
+            transform: translateZ(0);
+        }
+        .plan-card-glow:hover { 
+            box-shadow: 0 0 40px rgba(168, 85, 247, 0.08); 
+            border-color: rgba(168, 85, 247, 0.3); 
+            transform: translateY(-8px) scale(1.01) translateZ(0); 
+            z-index: 10; 
+        }
+        
+        #loader { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
+        .spinner { width: 40px; height: 40px; border: 2px solid rgba(168,85,247,0.2); border-radius: 50%; border-top-color: #A855F7; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .plan-card-glow:hover .plan-title {
+            color: #A855F7;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.4); 
+        }
+        
+        main {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loader"><div class="spinner"></div></div>
+    <div id="root"></div>
+<div id="NIEVROX-auth-root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo, memo } = React;
+        const _FM = window.Motion || {};
+        const motion          = _FM.motion          || 'div';
+        const AnimatePresence = _FM.AnimatePresence || (({ children }) => children);
+        const useInView       = _FM.useInView       || (() => true);
+        const THREE = window.THREE;
+        const { gsap, ScrollTrigger } = window;
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- LASER FLOW SHADER (OPTIMIZED) ---
+        const VERT = `precision highp float; attribute vec3 position; void main(){ gl_Position = vec4(position, 1.0); }`;
+        const FRAG_LASER = `
+        #ifdef GL_ES
+        #extension GL_OES_standard_derivatives : enable
+        #endif
+        precision mediump float; 
+        uniform float iTime; uniform vec3 iResolution; uniform float uWispDensity; uniform float uFlowTime; uniform float uBeamXFrac; uniform float uBeamYFrac; uniform float uFlowSpeed; uniform float uVLenFactor; uniform float uHLenFactor; uniform float uFogIntensity; uniform float uWSpeed; uniform float uWIntensity; uniform float uFlowStrength; uniform float uDecay; uniform float uFalloffStart; uniform vec3 uColor; uniform float uFade;
+        #define PI 3.14159265359
+        #define TWO_PI 6.28318530718
+        #define EPS 1e-6
+        #define EDGE_SOFT 0.0152
+        #define DT_LOCAL 0.0038
+        #define TAP_RADIUS 2 
+        #define R_H 150.0
+        #define R_V 150.0
+        #define FLARE_HEIGHT 16.0
+        #define FLARE_AMOUNT 8.0
+        #define FLARE_EXP 2.0
+        #define TOP_FADE_START 0.1
+        #define TOP_FADE_EXP 1.0
+        #define FLOW_PERIOD 0.5
+        #define FLOW_SHARPNESS 1.5
+        #define W_BASE_X 1.5
+        #define W_LAYER_GAP 0.25
+        #define W_LANES 5
+        #define W_SIDE_DECAY 0.5
+        #define W_HALF 0.01
+        #define W_AA 0.15
+        #define W_CELL 20.0
+        #define W_SEG_MIN 0.01
+        #define W_SEG_MAX 0.55
+        #define W_CURVE_AMOUNT 15.0
+        #define W_CURVE_RANGE 13.0
+        #define W_BOTTOM_EXP 10.0
+        float g(float x){return x<=0.00031308?12.92*x:1.055*pow(x,1.0/2.4)-0.055;}
+        float bs(vec2 p,vec2 q,float powr){ float d=distance(p,q),f=powr*uFalloffStart,r=(f*f)/(d*d+EPS); return powr*min(1.0,r); }
+        float bsa(vec2 p,vec2 q,float powr,vec2 s){ vec2 d=p-q; float dd=(d.x*d.x)/(s.x*s.x)+(d.y*d.y)/(s.y*s.y),f=powr*uFalloffStart,r=(f*f)/(dd+EPS); return powr*min(1.0,r); }
+        float tri01(float x){float f=fract(x);return 1.0-abs(f*2.0-1.0);}
+        float tauWf(float t,float tmin,float tmax){float a=smoothstep(tmin,tmin+EDGE_SOFT,t),b=1.0-smoothstep(tmax-EDGE_SOFT,tmax,t);return max(0.0,a*b);} 
+        float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+34.123);return fract(p.x*p.y);}
+        float rGate(float x,float l){float a=smoothstep(0.0,W_AA,x),b=1.0-smoothstep(l,l+W_AA,x);return max(0.0,a*b);}
+        float flareY(float y){float t=clamp(1.0-(clamp(y,0.0,FLARE_HEIGHT)/max(FLARE_HEIGHT,EPS)),0.0,1.0);return pow(t,FLARE_EXP);}
+        float vWisps(vec2 uv,float topF){ float y=uv.y,yf=(y+uFlowTime*uWSpeed)/W_CELL; float d=max(uWispDensity,1.0); int lanes=int(max(1.0,floor(float(W_LANES)*min(d,1.0)))); float sum=0.0;
+            float fm=flareY(max(y,0.0)),rm=clamp(1.0-(y/max(W_CURVE_RANGE,EPS)),0.0,1.0),cm=fm*rm; float xS=1.0+(FLARE_AMOUNT*W_CURVE_AMOUNT*0.05)*cm;
+            float bGain=pow(1.0-clamp(y/R_V,0.0,1.0),W_BOTTOM_EXP);
+            for(int s=0;s<2;++s){ float sgn=s==0?-1.0:1.0;
+                for(int i=0;i<W_LANES;++i){ if(i>=lanes) break; float off=W_BASE_X+float(i)*W_LAYER_GAP,xc=sgn*(off*xS); float dx=abs(uv.x-xc),lat=1.0-smoothstep(W_HALF,W_HALF+W_AA,dx),amp=exp(-off*W_SIDE_DECAY);
+                    float seed=h21(vec2(off,sgn*17.0)),yf2=yf+seed*7.0,ci=floor(yf2),fy=fract(yf2); float seg=mix(W_SEG_MIN,W_SEG_MAX,h21(vec2(ci,off*2.3))); float spR=h21(vec2(ci,off+sgn*31.0));
+                    sum+=amp*lat*rGate(fy,seg)*step(spR,min(d,1.0)); } }
+            return uWIntensity*sum*topF*bGain*smoothstep(-3.0,0.0,y)*(1.0-smoothstep(R_V-6.0,R_V,y)); }
+        void mainImage(out vec4 fc,in vec2 frag){
+            vec2 C=iResolution.xy*.5; float sc=512.0/iResolution.x*.4; vec2 uv=(frag-C)*sc,uvc=uv-vec2(uBeamXFrac*iResolution.x*sc,uBeamYFrac*iResolution.y*sc);
+            float a=0.0,b=0.0; float basePhase=1.5*PI+uDecay*.5,tauMin=basePhase-uDecay,tauMax=basePhase;
+            float cx=clamp(uvc.x/(R_H*uHLenFactor),-1.0,1.0),tH=clamp(TWO_PI-acos(cx),tauMin,tauMax);
+            for(int k=-TAP_RADIUS;k<=TAP_RADIUS;++k){ float tu=tH+float(k)*DT_LOCAL,wt=tauWf(tu,tauMin,tauMax); if(wt<=0.0) continue; float spd=max(abs(sin(tu)),0.02),u=clamp((basePhase-tu)/max(uDecay,EPS),0.0,1.0); a+=wt*bs(uvc,vec2((R_H*uHLenFactor)*cos(tu),0.0),pow(1.0-abs(u*2.0-1.0),0.8)*spd); }
+            float yPix=uvc.y,cy=clamp(-yPix/(R_V*uVLenFactor),-1.0,1.0),tV=clamp(TWO_PI-acos(cy),tauMin,tauMax);
+            for(int k=-TAP_RADIUS;k<=TAP_RADIUS;++k){ float tu=tV+float(k)*DT_LOCAL,wt=tauWf(tu,tauMin,tauMax); if(wt<=0.0) continue; float yb=(-R_V)*cos(tu),s=clamp(yb/R_V,0.0,1.0),spd=max(abs(sin(tu)),0.02);
+                float env=pow(1.0-s,0.6)*spd*pow(1.0-smoothstep(TOP_FADE_START,1.0,s),TOP_FADE_EXP); env*=mix(1.0-uFlowStrength,1.0,pow(tri01(s/max(FLOW_PERIOD,EPS)+uFlowTime*uFlowSpeed),FLOW_SHARPNESS));
+                float yp=(-R_V*uVLenFactor)*cos(tu),m=pow(smoothstep(FLARE_HEIGHT,0.0,yp),FLARE_EXP); b+=wt*bsa(uvc,vec2(0.0,yp),step(0.0,yp)*env,vec2(1.0+FLARE_AMOUNT*m,1.0)); }
+            float topA=pow(1.0-smoothstep(TOP_FADE_START,1.0,clamp(yPix/R_V,0.0,1.0)),TOP_FADE_EXP); float L=a+b*topA,w=vWisps(vec2(uvc.x,yPix),topA);
+            vec3 col=g(L+w)*uColor; float alpha=clamp(g(L+w*0.6),0.0,1.0);
+            fc=vec4(col,alpha)*uFade;
+        }
+        void main(){ vec4 fc; mainImage(fc, gl_FragCoord.xy); gl_FragColor = fc; }
+        `;
+
+        // Memoized to prevent re-renders on state change
+        const LaserFlow = memo(({ wispDensity=1, horizontalBeamOffset=0.1, verticalBeamOffset=0.0, flowSpeed=0.35, verticalSizing=2.0, horizontalSizing=0.5, wispSpeed=15.0, wispIntensity=5.0, flowStrength=0.25, decay=1.1, falloffStart=1.2, color='#A855F7' }) => {
+            const mountRef = useRef(null);
+            const hexToRGB = hex => {
+                let c = hex.trim(); if(c[0]==='#') c=c.slice(1);
+                if(c.length===3) c=c.split('').map(x=>x+x).join('');
+                const n=parseInt(c,16)||0xffffff; return {r:((n>>16)&255)/255,g:((n>>8)&255)/255,b:(n&255)/255};
+            };
+
+            useEffect(()=>{
+                if(!mountRef.current) return;
+                const mount = mountRef.current;
+                const renderer = new THREE.WebGLRenderer({ antialias:false, alpha:true, powerPreference:'high-performance' });
+                renderer.setPixelRatio(1); 
+                renderer.setSize(mount.clientWidth, mount.clientHeight);
+                mount.appendChild(renderer.domElement);
+
+                const scene = new THREE.Scene();
+                const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-1,-1,0, 3,-1,0, -1,3,0]),3));
+                const uniforms = {
+                    iTime:{value:0}, iResolution:{value:new THREE.Vector3(mount.clientWidth,mount.clientHeight,1)},
+                    uWispDensity:{value:wispDensity}, uFlowTime:{value:0},
+                    uBeamXFrac:{value:horizontalBeamOffset}, uBeamYFrac:{value:verticalBeamOffset},
+                    uFlowSpeed:{value:flowSpeed}, uVLenFactor:{value:verticalSizing}, uHLenFactor:{value:horizontalSizing},
+                    uWSpeed:{value:wispSpeed},
+                    uWIntensity:{value:wispIntensity}, uFlowStrength:{value:flowStrength}, uDecay:{value:decay},
+                    uFalloffStart:{value:falloffStart}, uColor:{value:new THREE.Vector3()}, uFade:{value:0}
+                };
+                const material = new THREE.RawShaderMaterial({ vertexShader:VERT, fragmentShader:FRAG_LASER, uniforms, transparent:true, depthTest:false, blending:THREE.AdditiveBlending });
+                const mesh = new THREE.Mesh(geometry, material); scene.add(mesh);
+                const clock = new THREE.Clock(); let raf=0;
+
+                const animate = () => {
+                    raf = requestAnimationFrame(animate);
+                    const dt = clock.getDelta();
+                    uniforms.iTime.value = clock.getElapsedTime();
+                    uniforms.uFlowTime.value += dt;
+                    if(uniforms.uFade.value < 1) uniforms.uFade.value += dt * 0.5;
+                    renderer.render(scene, camera);
+                };
+                animate();
+                const {r,g,b} = hexToRGB(color); uniforms.uColor.value.set(r,g,b);
+                const resize = () => { if(mount){ renderer.setSize(mount.clientWidth, mount.clientHeight); uniforms.iResolution.value.set(mount.clientWidth, mount.clientHeight, 1); } };
+                window.addEventListener('resize', resize);
+                return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); if(renderer && mount) mount.removeChild(renderer.domElement); geometry.dispose(); material.dispose(); renderer.dispose(); };
+            },[]);
+            return <div ref={mountRef} className="laser-flow-container" />;
+        });
+
+        // Memoized to prevent re-renders on inputs
+        const GhostCursor = memo(({ trailLength = 20, inertia = 0.92, bloomStrength = 0.1, bloomRadius = 0.5, bloomThreshold = 0.1, brightness = 0.30, color = '#B19EEF' }) => {
+            const mountRef = useRef(null);
+            const trailBufRef = useRef(Array.from({ length: 30 }, () => new THREE.Vector2(0.5, 0.5)));
+            const headRef = useRef(0);
+            const currentMouseRef = useRef(new THREE.Vector2(0.5, 0.5));
+            const velocityRef = useRef(new THREE.Vector2(0, 0));
+            const fadeOpacityRef = useRef(1.0);
+            const lastMoveTimeRef = useRef(Date.now());
+
+            useEffect(() => {
+                const mount = mountRef.current;
+                const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: 'high-performance' });
+                renderer.setPixelRatio(1);
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setClearColor(0x000000, 0);
+                mount.appendChild(renderer.domElement);
+
+                const scene = new THREE.Scene();
+                const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+                const baseColor = new THREE.Color(color);
+                const fragmentShader = `
+                    uniform float iTime; uniform vec3 iResolution; uniform vec2 iMouse; uniform vec2 iPrevMouse[30]; uniform float iOpacity; uniform vec3 iBaseColor; uniform float iBrightness;
+                    varying vec2 vUv;
+                    float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7))) * 43758.5453123); }
+                    float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f *= f * (3. - 2. * f); return mix(mix(hash(i + vec2(0.,0.)), hash(i + vec2(1.,0.)), f.x), mix(hash(i + vec2(0.,1.)), hash(i + vec2(1.,1.)), f.x), f.y); }
+                    float fbm(vec2 p){ float v = 0.0; float a = 0.5; mat2 m = mat2(0.87, 0.48, -0.48, 0.87); for(int i=0;i<5;i++){ v += a * noise(p); p = m * p * 2.0; a *= 0.5; } return v; }
+                    vec4 blob(vec2 p, vec2 mousePos, float intensity, float activity) { vec2 q = vec2(fbm(p * 2.0 + iTime * 0.2), fbm(p * 2.0 + vec2(5.2,1.3) + iTime * 0.2)); vec2 r = vec2(fbm(p * 2.0 + q * 1.5 + iTime * 0.3), fbm(p * 2.0 + q * 1.5 + vec2(8.3,2.8) + iTime * 0.3)); float smoke = fbm(p * 3.0 + r * 1.0); float d = length(p - mousePos); float distFactor = 1.0 / (1.0 + d * 15.0); float alpha = pow(smoke, 1.5) * distFactor * 2.5; return vec4(iBaseColor * alpha * intensity, alpha * intensity); }
+                    void main() { vec2 uv = vUv; vec2 aspect = vec2(iResolution.x / iResolution.y, 1.0); vec2 p = (uv * 2.0 - 1.0) * aspect; vec2 mouse = (iMouse * 2.0 - 1.0) * aspect; vec3 colorAcc = vec3(0.0); float alphaAcc = 0.0; vec4 b = blob(p, mouse, 1.0, iOpacity); colorAcc += b.rgb; alphaAcc += b.a; for (int i = 0; i < 30; i++) { vec2 pm = (iPrevMouse[i] * 2.0 - 1.0) * aspect; float t = 1.0 - float(i) / 30.0; t = pow(t, 2.0); if (t > 0.01) { vec4 bt = blob(p, pm, t * 0.5, iOpacity); colorAcc += bt.rgb; alphaAcc += bt.a; } } gl_FragColor = vec4(colorAcc * iBrightness, alphaAcc * iOpacity); }
+                `;
+                const material = new THREE.ShaderMaterial({
+                    uniforms: { iTime: { value: 0 }, iResolution: { value: new THREE.Vector3(window.innerWidth, window.innerHeight, 1) }, iMouse: { value: new THREE.Vector2(0.5, 0.5) }, iPrevMouse: { value: trailBufRef.current }, iOpacity: { value: 1.0 }, iBaseColor: { value: baseColor }, iBrightness: { value: brightness } },
+                    vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position, 1.0); }`,
+                    fragmentShader: fragmentShader, transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending
+                });
+                const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material); scene.add(plane);
+
+                const composer = new THREE.EffectComposer(renderer);
+                composer.addPass(new THREE.RenderPass(scene, camera));
+                composer.addPass(new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), bloomStrength, bloomRadius, bloomThreshold));
+                
+                const onMove = (e) => { currentMouseRef.current.set(e.clientX/window.innerWidth, 1.0-(e.clientY/window.innerHeight)); lastMoveTimeRef.current = performance.now(); fadeOpacityRef.current = 1.0; };
+                window.addEventListener('mousemove', onMove);
+                const onResize = () => { renderer.setSize(window.innerWidth, window.innerHeight); composer.setSize(window.innerWidth, window.innerHeight); material.uniforms.iResolution.value.set(window.innerWidth, window.innerHeight, 1); };
+                window.addEventListener('resize', onResize);
+                
+                const clock = new THREE.Clock(); let raf;
+                const animate = () => {
+                    raf = requestAnimationFrame(animate);
+                    const time = clock.getElapsedTime();
+                    const target = currentMouseRef.current, current = material.uniforms.iMouse.value;
+                    velocityRef.current.set(target.x - current.x, target.y - current.y).multiplyScalar(1 - inertia);
+                    current.add(velocityRef.current);
+                    
+                    headRef.current = (headRef.current + 1) % 30;
+                    trailBufRef.current[headRef.current].copy(current);
+                    const arr = material.uniforms.iPrevMouse.value;
+                    for(let i=0; i<30; i++) { arr[i].copy(trailBufRef.current[(headRef.current - i + 30) % 30]); }
+
+                    if(performance.now() - lastMoveTimeRef.current > 1000) fadeOpacityRef.current = Math.max(0, fadeOpacityRef.current - 0.02);
+                    material.uniforms.iTime.value = time; material.uniforms.iOpacity.value = fadeOpacityRef.current;
+                    composer.render();
+                };
+                animate();
+                return () => { cancelAnimationFrame(raf); window.removeEventListener('mousemove', onMove); window.removeEventListener('resize', onResize); mount.removeChild(renderer.domElement); };
+            }, [color]);
+            return <div ref={mountRef} className="ghost-cursor-container" />;
+        });
+
+        const ScrollFloat = ({ children, scrollContainerRef }) => {
+            const containerRef = useRef(null);
+            const splitText = children.split('').map((char, index) => (<span className="char" key={index}>{char === ' ' ? '\u00A0' : char}</span>));
+            useEffect(() => {
+                if (!containerRef.current) return;
+                gsap.fromTo(containerRef.current.querySelectorAll('.char'), { opacity: 0, yPercent: 120, scaleY: 2.3 }, { duration: 1.5, ease: 'power2.out', opacity: 1, yPercent: 0, scaleY: 1, stagger: 0.05, scrollTrigger: { trigger: containerRef.current, start: 'center bottom+=50%', end: 'bottom bottom', scrub: 2.5 } });
+            }, []);
+            return <h2 ref={containerRef} className="scroll-float"><span className="scroll-float-text">{splitText}</span></h2>;
+        };
+
+        function DemoChat() { 
+            const [msgs, setMsgs] = useState([]); 
+           useEffect(() => {
+  const raw = [
+    { from: 'user', text: 'Hi, how does NIEVROX work?' },
+    { from: 'bot', text: 'NIEVROX automates WhatsApp replies.' },
+    { from: 'user', text: 'Can it book appointments?' }
+  ];
+
+  let i = 0;
+
+  const interval = setInterval(() => {
+    if (!raw || i >= raw.length) {
+      clearInterval(interval);
+      return;
+    }
+
+    const nextMsg = raw[i];
+    if (nextMsg) {
+      setMsgs(p => [...p, nextMsg]);
+    }
+
+    i++;
+  }, 1500);
+
+  return () => clearInterval(interval);
+}, []);
+            return ( 
+                <div className="w-full max-w-md bg-neutral-900/40 backdrop-blur-xl rounded-2xl border border-white/10 p-4 shadow-xl h-[300px] flex flex-col relative group">
+                    <div className="flex-1 overflow-auto flex flex-col gap-3">
+                        {msgs.map((m, i) => { if (!m) return null; return (<motion.div key={i} initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className={`p-3 rounded-xl max-w-[85%] text-xs ${m.from==='bot'?'bg-neutral-800/80 text-gray-200 rounded-tl-sm border border-white/5':'bg-[#A855F7] text-black font-bold self-end rounded-tr-sm'}`}>{m.text}</motion.div>); })}
+                    </div>
+                </div> 
+            ); 
+        }
+
+        function PlanRecommender({ onPlanSelected }) { 
+            const [step, setStep] = useState(1);
+            const [data, setData] = useState({ name: '', type: 'Physical Store', count: '' });
+            const [res, setRes] = useState(null);
+            const [error, setError] = useState(false);
+
+            const analyze = () => {
+                // Validation: Check if fields are empty
+                if(!data.name.trim() || !data.count.trim()) {
+                    setError(true);
+                    return;
+                }
+                
+                setError(false);
+                let recommended = 'Standard';
+                let reason = '';
+                const count = parseInt(data.count);
+
+                if (count > 2000) {
+                    recommended = 'Premium';
+                    reason = `With ${count} daily messages, you need our dedicated servers and unlimited agents.`;
+                } else if (data.type === 'E-Commerce' || (count >= 500 && count <= 2000)) {
+                    recommended = 'Standard';
+                    reason = data.type === 'E-Commerce' ? 'E-Commerce requires our advanced API integrations.' : 'Perfect for scaling businesses.';
+                } else {
+                    recommended = 'Basic';
+                    reason = 'Ideal for physical stores starting with automation.';
+                }
+                setRes({ id: recommended, r: reason });
+            };
+
+            return ( 
+                <div className="bg-neutral-900/30 backdrop-blur-md rounded-2xl border border-white/10 p-6 max-w-lg mx-auto w-full relative z-20">
+                    <h4 className="text-xl font-bold mb-4 text-white text-center">AI Plan Finder</h4>
+                    
+                    {!res ? (
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-xs text-gray-400 mb-1 block">Shop / Business Name</label>
+                                <input 
+                                    value={data.name} 
+                                    onChange={e=>setData({...data, name: e.target.value})} 
+                                    placeholder="Ex: NIEVROX Retail" 
+                                    className={`w-full p-3 rounded-lg bg-black/40 border text-white text-sm focus:border-[#A855F7] outline-none transition-colors focus:bg-white/5 ${error && !data.name ? 'border-red-500' : 'border-neutral-700'}`} 
+                                />
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-xs text-gray-400 mb-1 block">Business Type</label>
+                                    <select value={data.type} onChange={e=>setData({...data, type: e.target.value})} className="w-full p-3 rounded-lg bg-black/40 border border-neutral-700 text-white text-sm focus:border-[#A855F7] outline-none transition-colors focus:bg-white/5 appearance-none">
+                                        <option>Physical Store</option>
+                                        <option>E-Commerce</option>
+                                        <option>Service Agency</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-xs text-gray-400 mb-1 block">Msgs / Day</label>
+                                    <input 
+                                        type="number" 
+                                        value={data.count} 
+                                        onChange={e=>setData({...data, count: e.target.value})} 
+                                        placeholder="500" 
+                                        className={`w-full p-3 rounded-lg bg-black/40 border text-white text-sm focus:border-[#A855F7] outline-none transition-colors focus:bg-white/5 ${error && !data.count ? 'border-red-500' : 'border-neutral-700'}`} 
+                                    />
+                                </div>
+                            </div>
+
+                            <button onClick={analyze} className="w-full py-3 bg-[#A855F7] hover:bg-[#9333ea] transition-colors text-black font-bold rounded-lg text-sm mt-2">Analyze Requirements</button>
+                        </div>
+                    ) : (
+                        <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="text-center">
+                            <div className="text-sm text-gray-400 mb-2">Based on your input for <span className="text-white font-bold">{data.name}</span>:</div>
+                            <div className="p-4 bg-[#A855F7]/10 border border-[#A855F7]/30 rounded-lg mb-4">
+                                <div className="text-2xl font-bold text-white mb-1">{res.id} Plan</div>
+                                <div className="text-xs text-[#A855F7]">{res.r}</div>
+                            </div>
+                            <div className="flex gap-2">
+                                <button onClick={()=>setRes(null)} className="flex-1 py-2 text-xs text-gray-400 hover:text-white">Back</button>
+                                {/* Opens the Checkout Modal instead of showing immediate success */}
+                                <button onClick={() => onPlanSelected(res.id)} className="flex-[2] py-2 bg-white text-black font-bold rounded-lg text-sm hover:bg-gray-200">Get Demo for {res.id}</button>
+                            </div>
+                        </motion.div>
+                    )}
+                </div> 
+            ); 
+        }
+        
+        function FAQItem({ q, a }) { 
+            const [open, setOpen] = useState(false); 
+            return ( 
+                <div onClick={()=>setOpen(!open)} className="bg-neutral-900/30 border border-white/5 p-5 rounded-2xl cursor-pointer hover:border-[#A855F7]/30 hover:bg-neutral-900/60 transition-all group"> 
+                    <div className="flex justify-between items-start gap-4">
+                        <span className="faq-q text-gray-200 group-hover:text-[#A855F7] transition-colors flex-1">{q}</span>
+                        <span className={`text-[#A855F7] transition-transform duration-300 flex-shrink-0 mt-0.5 ${open?'rotate-180':''}`}>▼</span>
+                    </div>
+                    <AnimatePresence>
+                        {open && (
+                            <motion.div initial={{height:0, opacity:0}} animate={{height:'auto', opacity:1}} exit={{height:0, opacity:0}} transition={{duration:0.25}} className="overflow-hidden">
+                                <div className="pt-3 faq-a">{a}</div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div> 
+            ); 
+        }
+
+        // ─── REGION + LANGUAGE DATA ────────────────────────────────────
+        const REGIONS = {
+            india: {
+                label: 'India', flag: '🇮🇳', currency: 'INR ₹', gateway: 'Cashfree',
+                languages: {
+                    en: {
+                        label: 'English', dir: 'ltr',
+                        hero: { tagline: 'WhatsApp Automation', cta: 'Explore Services', sub: 'Engage customers instantly, 24/7. Our AI agents handle inquiries, qualify leads, and book meetings directly on WhatsApp — without human intervention.' },
+                        pricing: { currency: '₹', symbol: '₹', title: 'Plans & Pricing', sub: 'Choose the automation scale that fits your business.' },
+                        plans: [
+                            { name:'Basic', price:499, origPrice:999, features:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Standard Email Support'], allFeatures:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Standard Email Support','WhatsApp Number Linking','Basic Analytics Dashboard'] },
+                            { name:'Standard', price:899, origPrice:2499, features:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance'], allFeatures:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance','Broadcast Campaigns','Advanced Templates','Priority Support','Analytics Dashboard','CRM Integration (Basic)','Smart Routing'] },
+                            { name:'Premium', price:1499, origPrice:5999, features:['Dedicated Account Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support'], allFeatures:['Dedicated Account Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support','SLA 99.9% Uptime','On-premise Deployment Option','Real-time Analytics','CRM Integration (Advanced)','5 AI Training Sessions/mo','Priority Onboarding within 24hr'] }
+                        ],
+                        faq: [
+                            { q:'How fast is the setup?', a:'Most clients are live within 24–48 hours after linking their WhatsApp Business API account.' },
+                            { q:'Can I scale indefinitely?', a:'Yes, our infrastructure is built on cloud-native architecture supporting unlimited concurrent conversations.' },
+                            { q:'Is it Meta approved?', a:'100% compliant. We use official WhatsApp Business APIs to ensure zero risk of banning.' },
+                            { q:'Do I need coding skills?', a:'No, our platform is designed with a no-code drag-and-drop interface.' },
+                            { q:'Is my data secure?', a:'Absolutely. We use end-to-end encryption and are GDPR compliant.' }
+                        ],
+                        stats: [{ num:'500+', label:'Businesses Automated' },{ num:'2M+', label:'Messages Handled' },{ num:'24/7', label:'Uptime Guarantee' },{ num:'48hr', label:'Average Go-Live' }]
+                    },
+                }
+            },
+            uae: {
+                label: 'UAE', flag: '🇦🇪', currency: 'AED', gateway: 'Stripe',
+                languages: {
+                    en: {
+                        label: 'English', dir: 'ltr',
+                        hero: { tagline: 'WhatsApp Automation', cta: 'Explore Services', sub: 'Engage your customers 24/7 with intelligent AI agents that handle inquiries, qualify leads, and book appointments on WhatsApp — fully automated.' },
+                        pricing: { currency: 'AED', symbol: 'AED ', title: 'Plans & Pricing', sub: 'Scalable automation plans built for the UAE market.' },
+                        plans: [
+                            { name:'Basic', price:75, origPrice:149, features:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support'], allFeatures:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support','WhatsApp Number Linking','Basic Analytics'] },
+                            { name:'Standard', price:135, origPrice:369, features:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance'], allFeatures:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance','Broadcast Campaigns','Priority Support','Analytics Dashboard','CRM Integration','Smart Routing'] },
+                            { name:'Premium', price:225, origPrice:899, features:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support'], allFeatures:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support','99.9% SLA Uptime','On-premise Deployment','Real-time Analytics','5 AI Training Sessions/mo','Priority Onboarding within 24hr'] }
+                        ],
+                        faq: [
+                            { q:'How fast is setup?', a:'Most UAE clients are live within 24–48 hours after WhatsApp Business API setup.' },
+                            { q:'Is it Meta compliant?', a:'Yes, 100%. We use official WhatsApp Business APIs to ensure zero ban risk.' },
+                            { q:'Do I need technical skills?', a:'No. Our no-code drag-and-drop interface makes it easy for any business.' },
+                            { q:'Is data secure?', a:'All data is encrypted and stored in compliance with UAE data protection laws.' }
+                        ],
+                        stats: [{ num:'500+', label:'Businesses Automated' },{ num:'2M+', label:'Messages Handled' },{ num:'24/7', label:'Uptime Guarantee' },{ num:'48hr', label:'Avg Go-Live' }]
+                    },
+                    ar: {
+                        label: 'العربية', dir: 'rtl',
+                        hero: { tagline: 'أتمتة واتساب', cta: 'استكشف خدماتنا', sub: 'تفاعل مع عملائك على مدار الساعة بوكلاء ذكاء اصطناعي يردون على الاستفسارات ويؤهّلون العملاء المحتملين ويحجزون المواعيد عبر واتساب تلقائياً.' },
+                        pricing: { currency: 'AED', symbol: 'درهم ', title: 'الباقات والأسعار', sub: 'اختر باقة الأتمتة المناسبة لنشاطك التجاري.' },
+                        plans: [
+                            { name:'الأساسية', price:75, origPrice:149, features:['ردود تلقائية 24/7','التقاط العملاء المحتملين','مقعد وكيل واحد','500 رسالة/يوم','قوالب أساسية','دعم البريد الإلكتروني'], allFeatures:['ردود تلقائية 24/7','التقاط العملاء المحتملين','مقعد وكيل واحد','500 رسالة/يوم','قوالب أساسية','دعم البريد الإلكتروني','ربط رقم واتساب','تحليلات أساسية'] },
+                            { name:'القياسية', price:135, origPrice:369, features:['تدفقات متعددة الخطوات','تحويل الوكيل','5 مقاعد وكلاء','رسائل غير محدودة','حجز المواعيد','مساعدة العلامة الخضراء'], allFeatures:['تدفقات متعددة الخطوات','تحويل الوكيل','5 مقاعد وكلاء','رسائل غير محدودة','حجز المواعيد','مساعدة العلامة الخضراء','حملات البث','دعم ذو أولوية','لوحة التحليلات','تكامل CRM','التوجيه الذكي'] },
+                            { name:'المميزة', price:225, origPrice:899, features:['مدير حساب مخصص','وصول كامل للـ API','وكلاء غير محدودون','نموذج ذكاء اصطناعي مخصص','وضع العلامة البيضاء','دعم هاتفي 24/7'], allFeatures:['مدير حساب مخصص','وصول كامل للـ API','وكلاء غير محدودون','نموذج ذكاء اصطناعي مخصص','وضع العلامة البيضاء','دعم هاتفي 24/7','ضمان تشغيل 99.9%','نشر محلي','تحليلات فورية','5 جلسات تدريب ذكاء اصطناعي/شهر','تأهيل بأولوية خلال 24 ساعة'] }
+                        ],
+                        faq: [
+                            { q:'كم يستغرق الإعداد؟', a:'معظم العملاء يبدؤون العمل خلال 24–48 ساعة بعد ربط حساب واتساب بيزنس API.' },
+                            { q:'هل هو متوافق مع ميتا؟', a:'نعم 100٪. نستخدم واجهات برمجة واتساب بيزنس الرسمية لضمان عدم الحظر.' },
+                            { q:'هل أحتاج مهارات تقنية؟', a:'لا. واجهتنا بدون كود تجعل الأمر سهلاً لأي نشاط تجاري.' }
+                        ],
+                        stats: [{ num:'+500', label:'شركة مؤتمتة' },{ num:'+2M', label:'رسالة تمت معالجتها' },{ num:'24/7', label:'ضمان التشغيل' },{ num:'48hr', label:'متوسط الإطلاق' }]
+                    }
+                }
+            },
+            usa: {
+                label: 'USA', flag: '🇺🇸', currency: 'USD $', gateway: 'Stripe',
+                languages: {
+                    en: {
+                        label: 'English', dir: 'ltr',
+                        hero: { tagline: 'WhatsApp Automation', cta: 'Explore Services', sub: 'Deploy intelligent AI agents that handle customer inquiries, qualify leads, and schedule meetings on WhatsApp — 24/7 without lifting a finger.' },
+                        pricing: { currency: 'USD', symbol: '$', title: 'Plans & Pricing', sub: 'Simple, transparent pricing for every scale of business.' },
+                        plans: [
+                            { name:'Basic', price:9, origPrice:19, features:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support'], allFeatures:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support','WhatsApp Number Linking','Basic Analytics Dashboard'] },
+                            { name:'Standard', price:17, origPrice:45, features:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance'], allFeatures:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance','Broadcast Campaigns','Priority Support','Analytics Dashboard','CRM Integration','Smart Routing'] },
+                            { name:'Premium', price:27, origPrice:109, features:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support'], allFeatures:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support','99.9% SLA Uptime','On-premise Deployment','Real-time Analytics','5 AI Training Sessions/mo','Priority Onboarding 24hr'] }
+                        ],
+                        faq: [
+                            { q:'How fast is setup?', a:'Most clients are live within 24–48 hours after linking their WhatsApp Business API account.' },
+                            { q:'Is it Meta compliant?', a:'100% compliant. We use official WhatsApp Business APIs — zero ban risk.' },
+                            { q:'Do I need to code?', a:'No. Our platform features a no-code drag-and-drop interface for anyone.' },
+                            { q:'Is my data secure?', a:'Yes. End-to-end encryption and GDPR compliance are built in.' }
+                        ],
+                        stats: [{ num:'500+', label:'Businesses Automated' },{ num:'2M+', label:'Messages Handled' },{ num:'24/7', label:'Uptime Guarantee' },{ num:'48hr', label:'Avg Go-Live' }]
+                    }
+                }
+            },
+            sea: {
+                label: 'Indonesia', flag: '🇮🇩', currency: 'USD $', gateway: 'Stripe',
+                languages: {
+                    en: {
+                        label: 'English', dir: 'ltr',
+                        hero: { tagline: 'WhatsApp Automation', cta: 'Explore Services', sub: 'Power your business with AI agents that respond to customers, capture leads, and book appointments on WhatsApp — around the clock.' },
+                        pricing: { currency: 'USD', symbol: '$', title: 'Plans & Pricing', sub: 'Affordable automation built for Southeast Asian businesses.' },
+                        plans: [
+                            { name:'Basic', price:9, origPrice:19, features:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support'], allFeatures:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support','WhatsApp Number Linking','Basic Analytics'] },
+                            { name:'Standard', price:17, origPrice:45, features:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance'], allFeatures:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance','Broadcast Campaigns','Priority Support','Analytics Dashboard','CRM Integration'] },
+                            { name:'Premium', price:27, origPrice:109, features:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support'], allFeatures:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support','99.9% SLA Uptime','Real-time Analytics','5 AI Training Sessions/mo','Priority Onboarding 24hr'] }
+                        ],
+                        faq: [
+                            { q:'How fast is setup?', a:'Most clients go live within 24–48 hours after API setup.' },
+                            { q:'Is it Meta approved?', a:'Yes, 100% compliant with WhatsApp Business API policies.' },
+                            { q:'Do I need coding skills?', a:'No. Our no-code interface works for any business owner.' },
+                            { q:'Is data secure?', a:'Yes. End-to-end encryption and full GDPR compliance.' }
+                        ],
+                        stats: [{ num:'500+', label:'Businesses Automated' },{ num:'2M+', label:'Messages Handled' },{ num:'24/7', label:'Uptime Guarantee' },{ num:'48hr', label:'Avg Go-Live' }]
+                    },
+                    ta: {
+                        label: 'தமிழ்', dir: 'ltr',
+                        hero: { tagline: 'வாட்ஸ்அப் ஆட்டோமேஷன்', cta: 'சேவைகளை காண்க', sub: 'எங்கள் AI ஏஜென்ட்கள் 24/7 வாடிக்கையாளர்களுக்கு பதிலளிக்கிறார்கள், லீட்களை தகுதிப்படுத்துகிறார்கள், மற்றும் WhatsApp மூலம் சந்திப்புகளை புக் செய்கிறார்கள்.' },
+                        pricing: { currency: 'USD', symbol: '$', title: 'திட்டங்கள் & விலை', sub: 'உங்கள் வணிகத்திற்கு சரியான திட்டத்தை தேர்ந்தெடுங்கள்.' },
+                        plans: [
+                            { name:'அடிப்படை', price:9, origPrice:19, features:['24/7 தானியங்கி பதில்கள்','லீட் கேப்சர்','1 ஏஜென்ட் இருக்கை','500 செய்திகள்/நாள்','அடிப்படை டெம்பிளேட்கள்','மின்னஞ்சல் ஆதரவு'], allFeatures:['24/7 தானியங்கி பதில்கள்','லீட் கேப்சர்','1 ஏஜென்ட் இருக்கை','500 செய்திகள்/நாள்','அடிப்படை டெம்பிளேட்கள்','மின்னஞ்சல் ஆதரவு','WhatsApp இணைப்பு','அடிப்படை பகுப்பாய்வு'] },
+                            { name:'நிலையான', price:17, origPrice:45, features:['பல-படி ஓட்டங்கள்','ஏஜென்ட் இடமாற்றம்','5 ஏஜென்ட் இருக்கைகள்','வரம்பற்ற செய்திகள்','சந்திப்பு புக்கிங்','பச்சை டிக் உதவி'], allFeatures:['பல-படி ஓட்டங்கள்','ஏஜென்ட் இடமாற்றம்','5 ஏஜென்ட் இருக்கைகள்','வரம்பற்ற செய்திகள்','சந்திப்பு புக்கிங்','பச்சை டிக் உதவி','ஒளிபரப்பு பிரச்சாரங்கள்','முன்னுரிமை ஆதரவு','பகுப்பாய்வு டாஷ்போர்டு'] },
+                            { name:'பிரீமியம்', price:27, origPrice:109, features:['அர்ப்பணிப்பு மேலாளர்','முழு API அணுகல்','வரம்பற்ற ஏஜென்ட்கள்','தனிப்பயன் AI மாதிரி','வெள்ளை-லேபலிங்','24/7 தொலைபேசி ஆதரவு'], allFeatures:['அர்ப்பணிப்பு மேலாளர்','முழு API அணுகல்','வரம்பற்ற ஏஜென்ட்கள்','தனிப்பயன் AI மாதிரி','வெள்ளை-லேபலிங்','24/7 தொலைபேசி ஆதரவு','99.9% SLA அப்டைம்','நேரடி பகுப்பாய்வு','5 AI பயிற்சி அமர்வுகள்/மாதம்','24hr முன்னுரிமை ஆன்போர்டிங்'] }
+                        ],
+                        faq: [
+                            { q:'அமைப்பு எவ்வளவு விரைவாக நடக்கும்?', a:'பெரும்பாலான வாடிக்கையாளர்கள் API அமைப்பிற்கு பிறகு 24–48 மணி நேரத்தில் நேரடியாகி விடுகிறார்கள்.' },
+                            { q:'இது Meta அனுமதிக்கப்பட்டதா?', a:'ஆம், 100% இணக்கமானது. அதிகாரப்பூர்வ WhatsApp Business API பயன்படுத்துகிறோம்.' },
+                            { q:'எனக்கு தொழில்நுட்ப அறிவு தேவையா?', a:'இல்லை. எங்கள் நோ-கோட் இடைமுகம் எவருக்கும் எளிதானது.' }
+                        ],
+                        stats: [{ num:'500+', label:'வணிகங்கள் தானியங்கி' },{ num:'2M+', label:'செய்திகள் கையாளப்பட்டன' },{ num:'24/7', label:'அப்டைம் உத்தரவாதம்' },{ num:'48hr', label:'சராசரி கோ-லைவ்' }]
+                    }
+                }
+            },
+            brazil: {
+                label: 'Brazil', flag: '🇧🇷', currency: 'BRL R$', gateway: 'Stripe',
+                languages: {
+                    en: {
+                        label: 'English', dir: 'ltr',
+                        hero: { tagline: 'WhatsApp Automation', cta: 'Explore Services', sub: 'Brazil leads the world in WhatsApp usage. Deploy AI agents that respond to customers, qualify leads, and schedule meetings — 24/7 automatically.' },
+                        pricing: { currency: 'BRL', symbol: 'R$', title: 'Plans & Pricing', sub: 'Affordable automation for Brazilian businesses.' },
+                        plans: [
+                            { name:'Basic', price:45, origPrice:89, features:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support'], allFeatures:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support','WhatsApp Number Linking','Basic Analytics'] },
+                            { name:'Standard', price:85, origPrice:229, features:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance'], allFeatures:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance','Broadcast Campaigns','Priority Support','Analytics Dashboard','CRM Integration'] },
+                            { name:'Premium', price:139, origPrice:549, features:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support'], allFeatures:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support','99.9% SLA Uptime','Real-time Analytics','5 AI Training Sessions/mo','Priority Onboarding 24hr'] }
+                        ],
+                        faq: [
+                            { q:'How fast is setup?', a:'Most clients are live within 24–48 hours after linking their WhatsApp Business API account.' },
+                            { q:'Is it Meta compliant?', a:'100% compliant. We use official WhatsApp Business APIs — zero ban risk.' },
+                            { q:'Do I need to code?', a:'No. Our platform features a no-code drag-and-drop interface.' },
+                            { q:'Is my data secure?', a:'Yes. End-to-end encryption and LGPD compliance are built in.' }
+                        ],
+                        stats: [{ num:'500+', label:'Businesses Automated' },{ num:'2M+', label:'Messages Handled' },{ num:'24/7', label:'Uptime Guarantee' },{ num:'48hr', label:'Avg Go-Live' }]
+                    }
+                }
+            },
+            kuwait: {
+                label: 'Kuwait', flag: '🇰🇼', currency: 'KWD', gateway: 'Stripe',
+                languages: {
+                    en: {
+                        label: 'English', dir: 'ltr',
+                        hero: { tagline: 'WhatsApp Automation', cta: 'Explore Services', sub: 'Deploy AI agents that respond to customers instantly, qualify leads, and book appointments on WhatsApp — 24/7 fully automated.' },
+                        pricing: { currency: 'KWD', symbol: 'KD ', title: 'Plans & Pricing', sub: 'Scalable automation plans built for the Kuwait market.' },
+                        plans: [
+                            { name:'Basic', price:3, origPrice:6, features:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support'], allFeatures:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support','WhatsApp Number Linking','Basic Analytics'] },
+                            { name:'Standard', price:5, origPrice:13, features:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance'], allFeatures:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance','Broadcast Campaigns','Priority Support','Analytics Dashboard'] },
+                            { name:'Premium', price:8, origPrice:31, features:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support'], allFeatures:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support','99.9% SLA Uptime','Real-time Analytics','Priority Onboarding 24hr'] }
+                        ],
+                        faq: [
+                            { q:'How fast is setup?', a:'Most clients are live within 24–48 hours after API account setup.' },
+                            { q:'Is it Meta compliant?', a:'Yes, 100%. Official WhatsApp Business APIs only — zero ban risk.' },
+                            { q:'Do I need technical skills?', a:'No. Our no-code interface works for any business owner.' },
+                            { q:'Is data secure?', a:'All data encrypted in compliance with Kuwait data protection regulations.' }
+                        ],
+                        stats: [{ num:'500+', label:'Businesses Automated' },{ num:'2M+', label:'Messages Handled' },{ num:'24/7', label:'Uptime Guarantee' },{ num:'48hr', label:'Avg Go-Live' }]
+                    }
+                }
+            },
+            uk: {
+                label: 'UK', flag: '🇬🇧', currency: 'GBP £', gateway: 'Stripe',
+                languages: {
+                    en: {
+                        label: 'English', dir: 'ltr',
+                        hero: { tagline: 'WhatsApp Automation', cta: 'Explore Services', sub: 'Deploy intelligent AI agents that handle customer enquiries, qualify leads, and schedule meetings on WhatsApp — 24/7 without lifting a finger.' },
+                        pricing: { currency: 'GBP', symbol: '£', title: 'Plans & Pricing', sub: 'Simple, transparent pricing for every scale of UK business.' },
+                        plans: [
+                            { name:'Basic', price:7, origPrice:15, features:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support'], allFeatures:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support','WhatsApp Number Linking','Basic Analytics Dashboard'] },
+                            { name:'Standard', price:13, origPrice:36, features:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance'], allFeatures:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance','Broadcast Campaigns','Priority Support','Analytics Dashboard','CRM Integration'] },
+                            { name:'Premium', price:22, origPrice:89, features:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support'], allFeatures:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support','99.9% SLA Uptime','Real-time Analytics','5 AI Training Sessions/mo','Priority Onboarding 24hr'] }
+                        ],
+                        faq: [
+                            { q:'How fast is setup?', a:'Most clients are live within 24–48 hours after linking their WhatsApp Business API account.' },
+                            { q:'Is it Meta compliant?', a:'100% compliant. We use official WhatsApp Business APIs — zero ban risk.' },
+                            { q:'Do I need to code?', a:'No. Our platform features a no-code drag-and-drop interface for anyone.' },
+                            { q:'Is my data secure?', a:'Yes. End-to-end encryption and UK GDPR compliance are built in.' }
+                        ],
+                        stats: [{ num:'500+', label:'Businesses Automated' },{ num:'2M+', label:'Messages Handled' },{ num:'24/7', label:'Uptime Guarantee' },{ num:'48hr', label:'Avg Go-Live' }]
+                    }
+                }
+            },
+            mexico: {
+                label: 'Mexico', flag: '🇲🇽', currency: 'MXN $', gateway: 'Stripe',
+                languages: {
+                    en: {
+                        label: 'English', dir: 'ltr',
+                        hero: { tagline: 'WhatsApp Automation', cta: 'Explore Services', sub: 'AI agents that handle customer messages, qualify leads, and book appointments on WhatsApp — 24/7, fully automated for Mexican businesses.' },
+                        pricing: { currency: 'MXN', symbol: 'MX$', title: 'Plans & Pricing', sub: 'Affordable automation for Mexican businesses.' },
+                        plans: [
+                            { name:'Basic', price:159, origPrice:319, features:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support'], allFeatures:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support','WhatsApp Number Linking','Basic Analytics'] },
+                            { name:'Standard', price:299, origPrice:799, features:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance'], allFeatures:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance','Broadcast Campaigns','Priority Support','Analytics Dashboard'] },
+                            { name:'Premium', price:489, origPrice:1899, features:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support'], allFeatures:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support','99.9% SLA Uptime','Real-time Analytics','Priority Onboarding 24hr'] }
+                        ],
+                        faq: [
+                            { q:'How fast is setup?', a:'Most clients are live within 24–48 hours after API setup.' },
+                            { q:'Is it Meta approved?', a:'Yes, 100% compliant with WhatsApp Business API policies.' },
+                            { q:'Do I need coding skills?', a:'No. Our no-code interface works for any business owner.' },
+                            { q:'Is data secure?', a:'Yes. End-to-end encryption and full GDPR compliance.' }
+                        ],
+                        stats: [{ num:'500+', label:'Businesses Automated' },{ num:'2M+', label:'Messages Handled' },{ num:'24/7', label:'Uptime Guarantee' },{ num:'48hr', label:'Avg Go-Live' }]
+                    }
+                }
+            },
+            ksa: {
+                label: 'Saudi Arabia', flag: '🇸🇦', currency: 'SAR', gateway: 'Stripe',
+                languages: {
+                    en: {
+                        label: 'English', dir: 'ltr',
+                        hero: { tagline: 'WhatsApp Automation', cta: 'Explore Services', sub: 'Intelligent AI agents that handle customer inquiries, qualify leads, and schedule appointments on WhatsApp — fully automated for Saudi businesses.' },
+                        pricing: { currency: 'SAR', symbol: 'SAR ', title: 'Plans & Pricing', sub: 'Enterprise-grade automation built for the Saudi market.' },
+                        plans: [
+                            { name:'Basic', price:34, origPrice:69, features:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support'], allFeatures:['24/7 Auto Replies','Lead Capture','1 Agent Seat','500 Messages/day','Basic Templates','Email Support','WhatsApp Number Linking','Basic Analytics'] },
+                            { name:'Standard', price:64, origPrice:169, features:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance'], allFeatures:['Multi-step Flows','Agent Handoff','5 Agent Seats','Unlimited Messages','Appointment Booking','Green Tick Assistance','Broadcast Campaigns','Priority Support','Analytics Dashboard'] },
+                            { name:'Premium', price:104, origPrice:409, features:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support'], allFeatures:['Dedicated Manager','Full API Access','Unlimited Agents','Custom AI Model','White-labeling','24/7 Phone Support','99.9% SLA Uptime','Real-time Analytics','Priority Onboarding 24hr'] }
+                        ],
+                        faq: [
+                            { q:'How fast is setup?', a:'Most clients are live within 24–48 hours after WhatsApp Business API setup.' },
+                            { q:'Is it Meta compliant?', a:'Yes, 100%. We use official WhatsApp Business APIs to ensure zero ban risk.' },
+                            { q:'Do I need technical skills?', a:'No. Our no-code drag-and-drop interface makes it easy for any business.' },
+                            { q:'Is data secure?', a:'All data is encrypted and stored in compliance with Saudi data protection laws.' }
+                        ],
+                        stats: [{ num:'500+', label:'Businesses Automated' },{ num:'2M+', label:'Messages Handled' },{ num:'24/7', label:'Uptime Guarantee' },{ num:'48hr', label:'Avg Go-Live' }]
+                    }
+                }
+            }
+        };
+
+        // ─── REGION SELECTOR COMPONENT (CLEAN DROPDOWN) ───────────────
+        function RegionSelector({ region, lang, onRegion, onLang }) {
+            const [open, setOpen] = useState(false);
+            const ref = useRef(null);
+            const currentRegion = REGIONS[region];
+            const langs = Object.keys(currentRegion.languages);
+            
+            useEffect(() => {
+                const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+                document.addEventListener('mousedown', handler);
+                return () => document.removeEventListener('mousedown', handler);
+            }, []);
+
+            return (
+                <motion.div 
+                    initial={{opacity:0, y:-20}} animate={{opacity:1, y:0}} transition={{duration:0.6, delay:0.3}}
+                    ref={ref}
+                    style={{ position:'fixed', top:20, right:20, zIndex:500, display:'flex', flexDirection:'column', alignItems:'flex-end', gap:8 }}
+                >
+                    <button className="region-dropdown-btn" onClick={()=>setOpen(o=>!o)}>
+                        <span style={{fontSize:18}}>{currentRegion.flag}</span>
+                        <span>{currentRegion.label}</span>
+                        <span style={{color:'#A855F7', fontSize:11, marginLeft:2}}>({currentRegion.currency})</span>
+                        <span style={{color:'rgba(168,85,247,0.7)', fontSize:10, marginLeft:4}}>{open?'▲':'▼'}</span>
+                    </button>
+                    
+                    {open && (
+                        <div className="region-dropdown-panel">
+                            <p style={{color:'rgba(168,85,247,0.7)', fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'1.2px', padding:'4px 12px 8px', fontFamily:"'Space Grotesk', sans-serif"}}>Select Region</p>
+                            {Object.entries(REGIONS).map(([key, r]) => (
+                                <div key={key} onClick={()=>{ onRegion(key); onLang(Object.keys(REGIONS[key].languages)[0]); setOpen(false); }} className={`region-option ${region===key?'active':''}`}>
+                                    <span style={{fontSize:20}}>{r.flag}</span>
+                                    <span>{r.label}</span>
+                                    <span className="currency-tag">{r.currency}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    
+                    {(langs || []).length > 1 && (
+                        <div style={{display:'flex', gap:6}}>
+                            {langs.map(l => (
+                                <button key={l} onClick={()=>onLang(l)} className={`lang-pill ${lang===l?'active':''}`}>
+                                    {currentRegion.languages[l].label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </motion.div>
+            );
+        }
+        
+        function ComparisonTable() {
+            const features = [
+                { name: "24/7 AI Auto-Reply", b: true, s: true, p: true },
+                { name: "Green Tick Verification", b: false, s: true, p: true },
+                { name: "Broadcast Campaigns", b: false, s: true, p: true },
+                { name: "Smart Routing", b: false, s: true, p: true },
+                { name: "CRM Integration", b: false, s: "Basic", p: "Advanced" },
+                { name: "Appointment Booking", b: false, s: true, p: true }, // ADDED THIS ROW
+                { name: "Analytics Dashboard", b: "Basic", s: "Advanced", p: "Real-time" },
+                { name: "Multi-Agent Support", b: "1 Seat", s: "5 Seats", p: "Unlimited" },
+                { name: "API Access", b: false, s: false, p: true },
+                { name: "Dedicated Account Manager", b: false, s: false, p: true },
+                { name: "Custom AI Model Training", b: false, s: false, p: true },
+                { name: "SLA Guarantee", b: false, s: false, p: true },
+            ];
+            
+            return (
+                <div className="w-full overflow-x-auto bg-[#0a0a0a] rounded-3xl border border-white/10 p-6">
+                    <h3 className="text-2xl font-bold mb-6 text-center">Feature Comparison</h3>
+                    <table className="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr className="border-b border-white/10 text-gray-400 text-xs uppercase tracking-wider">
+                                <th className="p-4 font-medium">Feature</th>
+                                <th className="p-4 text-center font-medium">Basic</th>
+                                <th className="p-4 text-center text-[#A855F7] font-bold">Standard</th>
+                                <th className="p-4 text-center font-medium">Premium</th>
+                            </tr>
+                        </thead>
+                        <tbody className="text-sm">
+                            {features.map((f, i) => (
+                                <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                    <td className="p-4 font-medium text-white">{f.name}</td>
+                                    <td className="p-4 text-center text-gray-400">{f.b === true ? "✓" : f.b === false ? "-" : f.b}</td>
+                                    <td className="p-4 text-center text-[#A855F7] font-bold">{f.s === true ? "✓" : f.s === false ? "-" : f.s}</td>
+                                    <td className="p-4 text-center text-white">{f.p === true ? "✓" : f.p === false ? "-" : f.p}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
+
+        function ScrollReveal({ children, direction = "up", delay = 0 }) { 
+            const ref = useRef(null); 
+            const isInView = useInView(ref, { once: false, margin: "-10% 0px" }); 
+            let initial = { opacity: 0, x: 0, y: 0 }; 
+            
+            if (direction === "left") initial.x = -150; 
+            else if (direction === "right") initial.x = 150; 
+            else if (direction === "up") initial.y = 100;
+            else if (direction === "down") initial.y = -100;
+
+            return ( 
+                <motion.div 
+                    ref={ref} 
+                    initial={initial} 
+                    animate={isInView ? { opacity: 1, x: 0, y: 0 } : initial} 
+                    transition={{ duration: 1.6, delay, ease: [0.19, 1.0, 0.22, 1.0] }}
+                    className="w-full"
+                    style={{ willChange: 'transform, opacity' }}
+                > 
+                    {children} 
+                </motion.div> 
+            ); 
+        }
+
+        function SuccessModal({ onClose }) {
+            useEffect(() => {
+                const timer = setTimeout(onClose, 4000);
+                return () => clearTimeout(timer);
+            }, [onClose]);
+
+            return (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md px-4">
+                    <motion.div 
+                        initial={{scale: 0.8, opacity: 0}} 
+                        animate={{scale: 1, opacity: 1}} 
+                        exit={{scale: 0.8, opacity: 0}} 
+                        className="bg-black border border-green-500/50 p-8 rounded-3xl max-w-sm w-full text-center shadow-[0_0_50px_rgba(34,197,94,0.2)]"
+                    >
+                        <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/30">
+                            <span className="text-2xl text-green-500">✓</span>
+                        </div>
+                        <h2 className="text-2xl font-bold mb-2 text-white">Successfully Sent!</h2>
+                        <p className="text-gray-400 text-sm">We have received your request. Our team will contact you shortly.</p>
+                        <button onClick={onClose} className="mt-6 px-6 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-full text-xs font-bold text-white transition-colors">Close</button>
+                    </motion.div>
+                </div>
+            );
+        }
+
+        // ─── DEMO PAYMENT MODAL ────────────────────────────────────────
+        function DemoPaymentModal({ plan, gateway, amount, currency, onClose, onSuccess }) {
+            const [stage, setStage] = useState('choose'); // choose | processing | success | failed | pending
+            const [chosenGateway, setChosenGateway] = useState(gateway);
+            const txnId = 'DEMO_TXN_' + Math.random().toString(36).toUpperCase().substring(2,10);
+            
+            function simulatePay(outcome) {
+                setStage('processing');
+                setTimeout(() => setStage(outcome), 2000);
+            }
+
+            const isCashfree = chosenGateway === 'Cashfree';
+            
+            return (
+                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4" onClick={onClose}>
+                    <motion.div 
+                        initial={{scale:0.92,opacity:0,y:20}} animate={{scale:1,opacity:1,y:0}} exit={{scale:0.92,opacity:0,y:20}}
+                        transition={{duration:0.28,ease:[0.25,0.46,0.45,0.94]}}
+                        onClick={e=>e.stopPropagation()}
+                        className="pay-modal-card bg-[#06040e] border border-[#A855F7]/30 rounded-[28px] max-w-md w-full shadow-[0_0_80px_rgba(168,85,247,0.15)] relative overflow-hidden"
+                        style={{padding:'32px'}}
+                    >
+                        {/* Top accent line */}
+                        <div className="absolute top-0 left-[15%] right-[15%] h-[1px]" style={{background:'linear-gradient(90deg,transparent,#A855F7,transparent)'}}/>
+                        
+                        {/* Header */}
+                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:24}}>
+                            <div>
+                                <div style={{display:'inline-flex',alignItems:'center',gap:6,background:'rgba(168,85,247,0.08)',border:'1px solid rgba(168,85,247,0.2)',borderRadius:8,padding:'3px 10px',marginBottom:10}}>
+                                    <span style={{width:6,height:6,borderRadius:'50%',background:'#f59e0b',display:'inline-block'}}/>
+                                    <span style={{fontSize:10,fontWeight:700,color:'#f59e0b',letterSpacing:'1px',fontFamily:"'Space Grotesk',sans-serif"}}>DEMO MODE</span>
+                                </div>
+                                <h2 style={{color:'white',fontSize:20,fontWeight:800,fontFamily:"'Orbitron',sans-serif",letterSpacing:'-0.02em'}}>Complete Payment</h2>
+                                <p style={{color:'rgba(200,200,220,0.6)',fontSize:13,marginTop:4,fontFamily:"'Space Grotesk',sans-serif"}}>{plan} Plan — {currency}{amount}/month</p>
+                            </div>
+                            <button onClick={onClose} style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:'8px 10px',cursor:'pointer',color:'rgba(200,200,220,0.6)',fontSize:16,lineHeight:1}}>✕</button>
+                        </div>
+
+                        {stage === 'choose' && (
+                            <div>
+                                <p style={{color:'rgba(200,200,220,0.5)',fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'1.2px',marginBottom:14,fontFamily:"'Space Grotesk',sans-serif"}}>
+                                    {isCashfree ? '🇮🇳 India · Local Payment' : '🌐 International Payment'}
+                                </p>
+                                
+                                {isCashfree ? (
+                                    <button className="pay-gateway-btn cashfree" onClick={()=>simulatePay('success')}>
+                                        <span style={{fontSize:22}}>💚</span>
+                                        <span>Pay with Cashfree (Demo)</span>
+                                        <span style={{fontSize:11,opacity:0.7,marginLeft:'auto'}}>India · UPI / Cards</span>
+                                    </button>
+                                ) : (
+                                    <button className="pay-gateway-btn stripe" onClick={()=>simulatePay('success')}>
+                                        <span style={{fontSize:22}}>💜</span>
+                                        <span>Pay with Stripe (Demo)</span>
+                                        <span style={{fontSize:11,opacity:0.7,marginLeft:'auto'}}>Cards / Wallets</span>
+                                    </button>
+                                )}
+
+                                <div style={{display:'flex',gap:8,marginTop:4}}>
+                                    <button className="pay-gateway-btn" style={{flex:1,marginBottom:0,padding:'10px 14px',fontSize:12}} onClick={()=>simulatePay('pending')}>
+                                        ⏳ Simulate Pending
+                                    </button>
+                                    <button className="pay-gateway-btn" style={{flex:1,marginBottom:0,padding:'10px 14px',fontSize:12,borderColor:'rgba(239,68,68,0.3)',background:'rgba(239,68,68,0.06)'}} onClick={()=>simulatePay('failed')}>
+                                        ❌ Simulate Failed
+                                    </button>
+                                </div>
+
+                                <div style={{marginTop:20,padding:'12px 16px',background:'rgba(168,85,247,0.06)',border:'1px solid rgba(168,85,247,0.15)',borderRadius:12}}>
+                                    <p style={{color:'rgba(168,85,247,0.8)',fontSize:11,fontFamily:"'Space Grotesk',sans-serif",textAlign:'center'}}>
+                                        ⚡ No real payment will be processed — this is demo mode only
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {stage === 'processing' && (
+                            <div style={{textAlign:'center',padding:'24px 0'}}>
+                                <div style={{width:56,height:56,border:'3px solid rgba(168,85,247,0.2)',borderTopColor:'#A855F7',borderRadius:'50%',animation:'spin 0.9s linear infinite',margin:'0 auto 20px'}}/>
+                                <p style={{color:'white',fontSize:16,fontWeight:700,fontFamily:"'Orbitron',sans-serif"}}>Processing...</p>
+                                <p style={{color:'rgba(200,200,220,0.5)',fontSize:13,marginTop:8,fontFamily:"'Space Grotesk',sans-serif"}}>Connecting to {chosenGateway}</p>
+                            </div>
+                        )}
+
+                        {stage === 'success' && (
+                            <div>
+                                <div className="pay-status-success">
+                                    <div style={{fontSize:44,marginBottom:12}}>✅</div>
+                                    <h3 style={{color:'#10b981',fontSize:18,fontWeight:800,marginBottom:6,fontFamily:"'Orbitron',sans-serif"}}>Payment Successful</h3>
+                                    <p style={{color:'rgba(200,200,220,0.6)',fontSize:12,marginBottom:16,fontFamily:"'Space Grotesk',sans-serif"}}>Demo Mode · No real charge</p>
+                                    {[['Transaction ID', txnId],['Gateway', chosenGateway],['Plan', plan],['Amount', `${currency}${amount}/mo`],['Status', 'Success']].map(([k,v])=>(
+                                        <div key={k} style={{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid rgba(16,185,129,0.12)'}}>
+                                            <span style={{color:'rgba(200,200,220,0.5)',fontSize:12,fontFamily:"'Space Grotesk',sans-serif"}}>{k}</span>
+                                            <span style={{color:k==='Status'?'#10b981':k==='Transaction ID'?'#A855F7':'white',fontSize:12,fontWeight:700,fontFamily:"'Space Grotesk',sans-serif"}}>{v}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <button onClick={onSuccess} style={{width:'100%',marginTop:16,padding:'13px',borderRadius:14,background:'linear-gradient(135deg,#A855F7,#9333ea)',border:'none',color:'white',fontWeight:800,fontSize:14,cursor:'pointer',fontFamily:"'Space Grotesk',sans-serif",boxShadow:'0 0 28px rgba(168,85,247,0.35)'}}>
+                                    🚀 Continue to Dashboard
+                                </button>
+                            </div>
+                        )}
+
+                        {stage === 'failed' && (
+                            <div>
+                                <div className="pay-status-failed">
+                                    <div style={{fontSize:44,marginBottom:12}}>❌</div>
+                                    <h3 style={{color:'#ef4444',fontSize:18,fontWeight:800,marginBottom:6,fontFamily:"'Orbitron',sans-serif"}}>Payment Failed</h3>
+                                    <p style={{color:'rgba(200,200,220,0.6)',fontSize:12,marginBottom:16,fontFamily:"'Space Grotesk',sans-serif"}}>Demo Mode · Transaction declined</p>
+                                    {[['Transaction ID', txnId],['Gateway', chosenGateway],['Reason','Card declined (demo)'],['Status','Failed']].map(([k,v])=>(
+                                        <div key={k} style={{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid rgba(239,68,68,0.1)'}}>
+                                            <span style={{color:'rgba(200,200,220,0.5)',fontSize:12,fontFamily:"'Space Grotesk',sans-serif"}}>{k}</span>
+                                            <span style={{color:k==='Status'?'#ef4444':'white',fontSize:12,fontWeight:700,fontFamily:"'Space Grotesk',sans-serif"}}>{v}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <button onClick={()=>setStage('choose')} style={{width:'100%',marginTop:14,padding:'12px',borderRadius:14,background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef4444',fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'Space Grotesk',sans-serif"}}>
+                                    Try Again
+                                </button>
+                            </div>
+                        )}
+
+                        {stage === 'pending' && (
+                            <div>
+                                <div className="pay-status-pending">
+                                    <div style={{fontSize:44,marginBottom:12}}>⏳</div>
+                                    <h3 style={{color:'#f59e0b',fontSize:18,fontWeight:800,marginBottom:6,fontFamily:"'Orbitron',sans-serif"}}>Payment Pending</h3>
+                                    <p style={{color:'rgba(200,200,220,0.6)',fontSize:12,marginBottom:16,fontFamily:"'Space Grotesk',sans-serif"}}>Demo Mode · Awaiting confirmation</p>
+                                    {[['Transaction ID', txnId],['Gateway', chosenGateway],['Status','Pending']].map(([k,v])=>(
+                                        <div key={k} style={{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid rgba(245,158,11,0.1)'}}>
+                                            <span style={{color:'rgba(200,200,220,0.5)',fontSize:12,fontFamily:"'Space Grotesk',sans-serif"}}>{k}</span>
+                                            <span style={{color:k==='Status'?'#f59e0b':'white',fontSize:12,fontWeight:700,fontFamily:"'Space Grotesk',sans-serif"}}>{v}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <p style={{color:'rgba(200,200,220,0.5)',fontSize:12,textAlign:'center',marginTop:14,fontFamily:"'Space Grotesk',sans-serif"}}>You will receive a confirmation email once payment is verified.</p>
+                                <button onClick={onClose} style={{width:'100%',marginTop:12,padding:'12px',borderRadius:14,background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',color:'#f59e0b',fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:"'Space Grotesk',sans-serif"}}>
+                                    Close & Wait
+                                </button>
+                            </div>
+                        )}
+                    </motion.div>
+                </div>
+            );
+        }
+
+        function CheckoutModal({ plan, onClose, onSuccess, region }) {
+            const [form, setForm] = useState({ name: '', email: '', phone: '' });
+            const [errors, setErrors] = useState({});
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const [submitError, setSubmitError] = useState('');
+            const [showPayment, setShowPayment] = useState(false);
+
+            const regionData = REGIONS[region || 'india'];
+            const gateway = regionData ? regionData.gateway : 'Stripe';
+            const pricingMeta = regionData ? regionData.languages[Object.keys(regionData.languages)[0]].pricing : { symbol: '$' };
+            const plans = regionData ? regionData.languages[Object.keys(regionData.languages)[0]].plans : [];
+            const planData = plans.find(p => p.name === plan) || { price: '—' };
+
+           const handleSubmit = async () => {
+                const newErrors = {};
+                if (!form.name.trim()) newErrors.name = true;
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = true;
+                if (!/^\+?[\d\s-]{10,}$/.test(form.phone)) newErrors.phone = true;
+                setErrors(newErrors);
+                if (Object.keys(newErrors).length !== 0) return;
+                setIsSubmitting(true);
+                try {
+                    await window.saveLeadToFirebase({ requestType: "checkout_plan", plan, ...form });
+                    if (window.createClientInFirestore) {
+                        await window.createClientInFirestore({ companyName: form.name, email: form.email, phone: form.phone, selectedPlan: plan, businessType: "NOT_SET_YET", status: "active" });
+                    }
+                    setIsSubmitting(false);
+                    setShowPayment(true);
+                } catch (err) {
+                    console.error("CHECKOUT ERROR:", err);
+                    setSubmitError("Something went wrong. Please try again.");
+                    setIsSubmitting(false);
+                }
+            };
+
+            if (showPayment) {
+                return (
+                    <DemoPaymentModal
+                        plan={plan}
+                        gateway={gateway}
+                        amount={planData.price}
+                        currency={pricingMeta.symbol}
+                        onClose={onClose}
+                        onSuccess={() => { onClose(); window.openNIEVROXAuth(plan, form.email); }}
+                    />
+                );
+            }
+
+            return (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4" onClick={onClose}>
+                    <motion.div initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}} exit={{scale:0.9,opacity:0}} onClick={e=>e.stopPropagation()} className="bg-[#0a0a0a] border border-[#A855F7]/30 p-8 rounded-3xl max-w-sm w-full shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#A855F7] to-transparent"></div>
+                        
+                        {/* Gateway badge */}
+                        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:16}}>
+                            <span style={{background:gateway==='Cashfree'?'rgba(34,197,94,0.1)':'rgba(99,102,241,0.1)',border:`1px solid ${gateway==='Cashfree'?'rgba(34,197,94,0.3)':'rgba(99,102,241,0.3)'}`,borderRadius:8,padding:'3px 10px',fontSize:10,fontWeight:700,color:gateway==='Cashfree'?'#22c55e':'#818cf8',fontFamily:"'Space Grotesk',sans-serif",letterSpacing:'0.8px'}}>
+                                {gateway==='Cashfree'?'💚 CASHFREE':'💜 STRIPE'} · DEMO
+                            </span>
+                        </div>
+
+                        <h2 className="text-2xl font-bold mb-2 text-white">Selected: {plan}</h2>
+                        <p className="text-gray-400 text-sm mb-6">Complete your details to proceed with the {plan} tier.</p>
+                        
+                        <div className="space-y-3 mb-6">
+                            <input 
+                                className={`w-full bg-white/5 border rounded-lg p-3 text-sm text-white focus:border-[#A855F7] outline-none ${errors.name ? 'border-red-500' : 'border-white/10'}`} 
+                                placeholder="Full Name" 
+                                value={form.name}
+                                onChange={e => setForm({...form, name: e.target.value})}
+                            />
+                            <input 
+                                className={`w-full bg-white/5 border rounded-lg p-3 text-sm text-white focus:border-[#A855F7] outline-none ${errors.email ? 'border-red-500' : 'border-white/10'}`} 
+                                placeholder="Email Address" 
+                                value={form.email}
+                                onChange={e => setForm({...form, email: e.target.value})}
+                            />
+                            <input 
+                                className={`w-full bg-white/5 border rounded-lg p-3 text-sm text-white focus:border-[#A855F7] outline-none ${errors.phone ? 'border-red-500' : 'border-white/10'}`} 
+                                placeholder="Phone Number" 
+                                value={form.phone}
+                                onChange={e => setForm({...form, phone: e.target.value})}
+                            />
+                        </div>
+
+                        <button onClick={handleSubmit} disabled={isSubmitting} className="w-full py-3 rounded-xl bg-[#A855F7] text-white font-bold text-sm shadow-lg hover:shadow-[#A855F7]/20 transition-all">
+                            {isSubmitting ? 'Processing...' : `Proceed to ${gateway} Payment`}
+                        </button>
+                        {submitError && <p className="text-red-400 text-xs text-center mt-2">{submitError}</p>}
+                    </motion.div>
+                </div>
+            );
+        }
+function openContactSales() {
+  const modal = document.createElement('div');
+  modal.style = `
+    position:fixed; inset:0; background:rgba(0,0,0,.85);
+    display:flex; align-items:center; justify-content:center;
+    z-index:9999;
+  `;
+
+  modal.innerHTML = `
+  <div style="
+    width:420px;
+    background:#08050f;
+    border:1px solid rgba(168,85,247,.3);
+    border-radius:24px;
+    padding:28px;
+    box-shadow:0 0 60px rgba(168,85,247,.2);
+    color:white;
+  ">
+    <h2 style="margin-bottom:16px">Contact Sales</h2>
+
+    <input placeholder="Full Name" id="cs_name" class="cs"/>
+    <input placeholder="Business Name" id="cs_business" class="cs"/>
+    <input placeholder="Business Type" id="cs_type" class="cs"/>
+    <input placeholder="Location" id="cs_location" class="cs"/>
+    <input placeholder="Email" id="cs_email" class="cs"/>
+    <input placeholder="Phone" id="cs_phone" class="cs"/>
+    <textarea placeholder="Your Query" id="cs_message" class="cs"></textarea>
+
+    <button id="cs_submit">Submit</button>
+  </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  document.querySelectorAll('.cs').forEach(i=>{
+    i.style = `
+      width:100%;
+      margin-bottom:10px;
+      padding:10px;
+      border-radius:10px;
+      border:1px solid rgba(168,85,247,.3);
+      background:rgba(255,255,255,.05);
+      color:white;
+    `;
+  });
+
+  document.getElementById('cs_submit').onclick = async () => {
+    await fetch('http://localhost:5000/api/leads/create',{
+  method:'POST',
+  credentials:'include',
+  headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        name: cs_name.value,
+        business_name: cs_business.value,
+        business_location: cs_location.value,
+        email: cs_email.value,
+        phone: cs_phone.value,
+        message: cs_message.value
+      })
+    });
+
+    alert("Sales team will contact you 🚀");
+    modal.remove();
+  };
+
+  modal.onclick = e => {
+    if(e.target === modal) modal.remove();
+  };
+}
+        function ContactModal({ onClose, onSuccess }) {
+             const [form, setForm] = useState({ company: '', email: '', phone: '', message: '' });
+             const [errors, setErrors] = useState({});
+             const [isSubmitting, setIsSubmitting] = useState(false);
+
+             const handleSubmit = async () => {
+                const newErrors = {};
+                if (!form.company.trim()) newErrors.company = true;
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = true;
+                if (!/^\+?[\d\s-]{10,}$/.test(form.phone)) newErrors.phone = true;
+                if (!form.message.trim()) newErrors.message = true;
+
+                setErrors(newErrors);
+                if (Object.keys(newErrors).length === 0) {
+                    setIsSubmitting(true);
+
+                }
+             };
+             
+             return (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4" onClick={onClose}>
+                    <motion.div initial={{y:50,opacity:0}} animate={{y:0,opacity:1}} exit={{y:50,opacity:0}} onClick={e=>e.stopPropagation()} className="bg-[#0a0a0a] border border-white/10 p-8 rounded-3xl max-w-md w-full shadow-2xl">
+                        <h2 className="text-2xl font-bold mb-4 text-white">Contact Sales</h2>
+                        <div className="space-y-4">
+                            <input 
+                                className={`w-full bg-white/5 border rounded-lg p-3 text-sm text-white focus:border-[#A855F7] outline-none ${errors.company ? 'border-red-500' : 'border-white/10'}`} 
+                                placeholder="Company Name"
+                                value={form.company}
+                                onChange={e=>setForm({...form, company: e.target.value})}
+                            />
+                            <input 
+                                className={`w-full bg-white/5 border rounded-lg p-3 text-sm text-white focus:border-[#A855F7] outline-none ${errors.email ? 'border-red-500' : 'border-white/10'}`} 
+                                placeholder="Work Email"
+                                value={form.email}
+                                onChange={e=>setForm({...form, email: e.target.value})}
+                            />
+                            <input 
+                                className={`w-full bg-white/5 border rounded-lg p-3 text-sm text-white focus:border-[#A855F7] outline-none ${errors.phone ? 'border-red-500' : 'border-white/10'}`} 
+                                placeholder="Phone Number"
+                                value={form.phone}
+                                onChange={e=>setForm({...form, phone: e.target.value})}
+                            />
+                            <textarea 
+                                className={`w-full bg-white/5 border rounded-lg p-3 text-sm text-white focus:border-[#A855F7] outline-none h-24 ${errors.message ? 'border-red-500' : 'border-white/10'}`} 
+                                placeholder="How can we help?"
+                                value={form.message}
+                                onChange={e=>setForm({...form, message: e.target.value})}
+                            ></textarea>
+                            <button onClick={handleSubmit} disabled={isSubmitting} className="w-full py-3 rounded-xl bg-white text-black font-bold text-sm hover:bg-gray-200 transition-all">
+                                {isSubmitting ? 'Sending...' : 'Send Message'}
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+             );
+        }
+
+        // ── LEGAL MODAL ──────────────────────────────────────────────
+        const LEGAL_CONTENT = {
+            privacy: {
+                title: "Privacy Policy",
+                date: "Effective Date: January 1, 2025",
+                sections: [
+                    { heading: "1. Information We Collect", body: "NIEVROX collects personal information that you voluntarily provide when you register for our services, fill out a form, or contact us. This includes your name, email address, phone number, company name, and payment details. We also automatically collect certain technical data such as IP address, browser type, device information, and usage patterns when you interact with our platform." },
+                    { heading: "2. How We Use Your Information", body: "We use the information we collect to provide, operate, and improve our WhatsApp automation services; process transactions and send related information; send promotional communications (with your consent); respond to your comments and questions; and comply with legal obligations. We do not sell, trade, or rent your personal information to third parties." },
+                    { heading: "3. WhatsApp & Meta Data", body: "Our services operate through the official WhatsApp Business API provided by Meta. Any data transmitted through WhatsApp is governed by Meta's own Privacy Policy in addition to ours. We act as a data processor on your behalf for WhatsApp communications and only process message data as instructed by you." },
+                    { heading: "4. Data Storage & Security", body: "All data is stored on secure servers with industry-standard encryption (TLS/SSL). We implement appropriate technical and organizational measures to protect your information against unauthorized access, alteration, disclosure, or destruction. Data is retained for the duration of your subscription and up to 90 days after termination, after which it is permanently deleted." },
+                    { heading: "5. Cookies", body: "We use cookies and similar tracking technologies to enhance your experience on our website. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent." },
+                    { heading: "6. Third-Party Services", body: "We may employ third-party companies and individuals to facilitate our services, including payment processors and analytics providers. These third parties have access to your personal information only to perform specific tasks on our behalf and are obligated not to disclose or use it for any other purpose." },
+                    { heading: "7. Your Rights", body: "You have the right to access, correct, or delete your personal data at any time. To exercise these rights, contact us at NIEVROX.saas@gmail.com. We will respond within 30 days." },
+                    { heading: "8. Changes to This Policy", body: "We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page with an updated effective date." },
+                    { heading: "9. Contact Us", body: "If you have any questions about this Privacy Policy, please contact us at: NIEVROX.saas@gmail.com" }
+                ]
+            },
+            terms: {
+                title: "Terms & Conditions",
+                date: "Effective Date: January 1, 2025",
+                sections: [
+                    { heading: "1. Acceptance of Terms", body: "By accessing or using NIEVROX's WhatsApp automation platform (\"Service\"), you agree to be bound by these Terms & Conditions. If you do not agree to these terms, you may not use our Service. NIEVROX reserves the right to modify these terms at any time without prior notice, and continued use of the Service constitutes acceptance of any modifications." },
+                    { heading: "2. Service Description", body: "NIEVROX provides a cloud-based WhatsApp Business automation platform. The Service is provided 'as is' and 'as available'. NIEVROX makes no warranties, expressed or implied, and hereby disclaims all other warranties including merchantability, fitness for a particular purpose, or non-infringement." },
+                    { heading: "3. Subscription & Payment", body: "Subscription fees are billed monthly in advance. All payments are non-refundable unless otherwise stated. NIEVROX reserves the right to change pricing at any time with 30 days' notice. Failure to pay may result in immediate suspension or termination of your account without liability to NIEVROX. Reactivation may require payment of all outstanding dues." },
+                    { heading: "4. No Refund Policy", body: "All subscription fees paid to NIEVROX are strictly non-refundable. This includes partial months, unused service periods, or termination at any point during a billing cycle. By subscribing, you explicitly acknowledge and agree to this no-refund policy. In exceptional cases at NIEVROX's sole discretion, a service credit (not cash refund) may be offered." },
+                    { heading: "5. Account Responsibilities", body: "You are solely responsible for maintaining the security and confidentiality of your account credentials. You are fully responsible for all activities that occur under your account. NIEVROX is not liable for any loss or damage arising from your failure to maintain account security. You must immediately notify NIEVROX of any unauthorized use of your account." },
+                    { heading: "6. Acceptable Use", body: "You agree not to use the Service for any unlawful purpose or in any way that could damage, disable, or impair the Service. Prohibited uses include: sending spam, unsolicited bulk messages, or harassing communications; impersonating any person or entity; transmitting viruses or harmful code; violating Meta/WhatsApp policies; or using the Service to violate any applicable law or regulation. NIEVROX may suspend or terminate accounts that violate these policies without notice and without refund." },
+                    { heading: "7. WhatsApp Policy Compliance", body: "You are solely responsible for ensuring your use of the Service complies with WhatsApp's Business Policy and Terms of Service. NIEVROX is not responsible for any account banning, restriction, or action taken by Meta or WhatsApp against your business account. NIEVROX does not guarantee Meta/WhatsApp approval for any specific use case." },
+                    { heading: "8. Limitation of Liability", body: "To the maximum extent permitted by applicable law, NIEVROX shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, data, goodwill, or business interruption, arising out of or related to your use of the Service. NIEVROX's total liability shall not exceed the amount paid by you in the three months preceding the claim." },
+                    { heading: "9. Indemnification", body: "You agree to indemnify, defend, and hold harmless NIEVROX, its affiliates, officers, directors, employees, and agents from any claims, damages, losses, costs, or expenses (including legal fees) arising from your use of the Service, your violation of these Terms, or your violation of any third-party rights." },
+                    { heading: "10. Intellectual Property", body: "All intellectual property rights in the Service, including software, design, logos, and content, are owned exclusively by NIEVROX. You are granted a limited, non-exclusive, non-transferable license to use the Service for your internal business purposes only. You may not copy, modify, distribute, or reverse-engineer any part of the Service." },
+                    { heading: "11. Termination", body: "NIEVROX reserves the right to terminate or suspend your access to the Service at any time, for any reason, including violation of these Terms, with or without notice and without liability. Upon termination, your right to use the Service immediately ceases and NIEVROX may delete your data." },
+                    { heading: "12. Governing Law", body: "These Terms shall be governed by and construed in accordance with the laws of India. Any disputes arising under these Terms shall be subject to the exclusive jurisdiction of the courts located in India." },
+                    { heading: "13. Contact", body: "For any questions regarding these Terms & Conditions, contact us at: NIEVROX.saas@gmail.com" }
+                ]
+            },
+            copyright: {
+                title: "Copyright Notice",
+                date: `© ${new Date().getFullYear()} NIEVROX. All Rights Reserved.`,
+                sections: [
+                    { heading: "Ownership", body: "All content, design, graphics, logos, button icons, images, audio clips, digital downloads, data compilations, and software on this website are the exclusive property of NIEVROX and are protected by Indian and international copyright laws." },
+                    { heading: "Permitted Use", body: "You may view and print pages from this website for your personal, non-commercial use only. No part of this website may be reproduced, distributed, transmitted, displayed, published, or broadcast without the prior written permission of NIEVROX." },
+                    { heading: "Trademarks", body: "NIEVROX™ and the NIEVROX logo are trademarks of NIEVROX. All other trademarks, service marks, and logos used on this website are the property of their respective owners." },
+                    { heading: "DMCA Policy", body: "If you believe that any content on our website infringes your copyright, please contact us at NIEVROX.saas@gmail.com with a detailed description of the alleged infringement. We will investigate and respond promptly." },
+                    { heading: "Third-Party Content", body: "Some content may include or link to third-party material. NIEVROX does not claim ownership of third-party content and is not responsible for it." }
+                ]
+            }
+        };
+
+        function LegalModal({ type, onClose }) {
+            const content = LEGAL_CONTENT[type];
+            if (!content) return null;
+            return (
+                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/95 backdrop-blur-md p-4" onClick={onClose}>
+                    <motion.div 
+                        initial={{scale:0.95, opacity:0, y:20}} 
+                        animate={{scale:1, opacity:1, y:0}} 
+                        exit={{scale:0.95, opacity:0, y:20}} 
+                        transition={{duration:0.3, ease:[0.22,1,0.36,1]}}
+                        onClick={e=>e.stopPropagation()} 
+                        className="bg-[#080808] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
+                    >
+                        {/* Header */}
+                        <div className="flex justify-between items-start p-8 pb-4 border-b border-white/5 flex-shrink-0">
+                            <div>
+                                <h2 className="text-2xl font-bold text-white mb-1">{content.title}</h2>
+                                <p className="text-xs text-[#A855F7]">{content.date}</p>
+                            </div>
+                            <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors text-xl leading-none mt-1">✕</button>
+                        </div>
+                        {/* Scrollable body */}
+                        <div className="overflow-y-auto flex-1 p-8 pt-6 space-y-6 scrollbar-thin">
+                            {content.sections.map((s, i) => (
+                                <div key={i}>
+                                    <h3 className="text-sm font-bold text-white mb-2">{s.heading}</h3>
+                                    <p className="text-sm text-gray-400 leading-relaxed">{s.body}</p>
+                                </div>
+                            ))}
+                        </div>
+                        {/* Footer */}
+                        <div className="p-6 border-t border-white/5 flex-shrink-0">
+                            <button onClick={onClose} className="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-all">Close</button>
+                        </div>
+                    </motion.div>
+                </div>
+            );
+        }
+
+        function App() {
+            const chatSectionRef = useRef(null);
+            const [explored, setExplored] = useState(false);
+            const [showModal, setShowModal] = useState(null);
+            const [contactModal, setContactModal] = useState(false);
+            const [viewDetailsPlan, setViewDetailsPlan] = useState(null);
+            const [successModal, setSuccessModal] = useState(false);
+            const [legalModal, setLegalModal] = useState(null);
+            const [region, setRegion] = useState('india');
+            const [lang, setLang] = useState('en');
+
+            const t = REGIONS[region].languages[lang];
+            const plans = t.plans;
+            const pricingMeta = t.pricing;
+            const dir = t.dir;
+
+            // Handler for successful submissions
+            const handleSuccess = () => {
+                setShowModal(null);
+                setContactModal(false);
+                setViewDetailsPlan(null);
+                setSuccessModal(true);
+            };
+
+            useEffect(() => {
+                if (!window.Lenis) return; 
+
+                const lenis = new window.Lenis({
+                    duration: 1.2,
+                    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                    orientation: 'vertical',
+                    gestureOrientation: 'vertical',
+                    smoothWheel: true,
+                    wheelMultiplier: 1,
+                    touchMultiplier: 2,
+                });
+
+                lenis.on('scroll', ScrollTrigger.update);
+                gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+                gsap.ticker.lagSmoothing(0);
+
+                return () => {
+                    lenis.destroy();
+                    gsap.ticker.remove(lenis.raf);
+                };
+            }, []);
+
+            useEffect(() => {
+                const loader = document.getElementById('loader');
+                if(loader) setTimeout(() => { loader.style.opacity = '0'; }, 1000);
+                setTimeout(() => { if(loader) loader.remove(); }, 1800);
+            }, []);
+
+            useEffect(() => { 
+                if (!explored) document.body.style.overflow = 'hidden'; 
+                else document.body.style.overflow = 'auto'; 
+            }, [explored]);
+
+            const handleExplore = () => {
+                setExplored(true);
+                setTimeout(() => { if (chatSectionRef.current) chatSectionRef.current.scrollIntoView({ behavior: 'smooth' }); }, 100);
+            };
+
+            return (
+                <div className="min-h-screen bg-[#020202] text-white font-sans selection:bg-[#A855F7]/30" dir={dir}>
+                    <GhostCursor brightness={0.3} />
+                    <RegionSelector region={region} lang={lang} onRegion={setRegion} onLang={setLang} />
+                    
+                    {/* HERO */}
+                    <section className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden">
+                        <div className="absolute inset-0 w-full h-full z-0 opacity-100">
+                            <LaserFlow color="#A855F7" flowSpeed={0.3} wispDensity={5.0} wispIntensity={25.0} verticalSizing={20.0} horizontalBeamOffset={0.305} verticalBeamOffset={0.00} />
+                        </div>
+                        <div className="relative z-10 text-center flex flex-col items-center px-4 mt-16">
+                            
+                            <motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{delay: 2.0, duration: 2, ease: "easeOut"}} className="mb-4 select-none flex flex-row items-center leading-none justify-center">
+                                <span className="NIEVROX-logo text-white text-[10vw] md:text-[120px] drop-shadow-2xl">NIEVRO</span>
+                                <span className="NIEVROX-logo text-[#A855F7] text-[10vw] md:text-[120px] leading-none" style={{textShadow:'0 0 40px rgba(168,85,247,0.6)'}}>X</span>
+                            </motion.div>
+
+                            <motion.div initial={{x: -100, opacity: 0}} animate={{x: 0, opacity: 1}} transition={{delay: 2.2, duration: 1.5, ease: [0.25, 0.1, 0.25, 1]}} className="px-8 py-3 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-xs tracking-widest uppercase mb-8 flex items-center gap-3 shadow-2xl">
+                                <span className="w-8 h-[1px] bg-white/30"></span>{t.hero.tagline}<span className="w-8 h-[1px] bg-white/30"></span>
+                            </motion.div>
+
+                            <motion.button initial={{x: 100, opacity: 0}} animate={{x: 0, opacity: 1}} transition={{delay: 2.4, duration: 1.5, ease: [0.25, 0.1, 0.25, 1]}} onClick={handleExplore} className="px-8 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white hover:bg-[#A855F7] hover:text-black font-bold text-sm rounded-full shadow-lg transition-all duration-500 hover:scale-105">
+                                {t.hero.cta}
+                            </motion.button>
+                        </div>
+                    </section>
+
+                    {/* CONTENT */}
+                    {explored && (
+                        <motion.main initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }} className="relative z-10 bg-[#020202] min-h-screen pt-20 px-6 border-t border-white/5 shadow-[0_-50px_100px_rgba(0,0,0,1)]">
+                            <div className="max-w-5xl mx-auto space-y-32">
+                                
+                                <div ref={chatSectionRef} className="grid md:grid-cols-2 gap-12 items-center">
+                                    <ScrollReveal direction="left">
+                                        <h2 className="text-4xl md:text-5xl font-bold mb-6">Automate your <span className="text-[#A855F7]">Conversations</span></h2>
+                                        <p className="text-gray-400 text-lg leading-relaxed mb-8 font-light">{t.hero.sub}</p>
+                                        <div className="flex flex-wrap gap-3">{['Instant Reply', 'Lead Qual', 'Auto Booking'].map(tag=><span key={tag} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300">{tag}</span>)}</div>
+                                    </ScrollReveal>
+                                    <ScrollReveal direction="right"><div className="glow-visible rounded-3xl overflow-hidden border border-white/10"><DemoChat /></div></ScrollReveal>
+                                </div>
+
+                                <ScrollReveal direction="right">
+                                    {/* Pass the plan name to the modal handler */}
+                                    <PlanRecommender onPlanSelected={(planName) => setShowModal(planName)} />
+                                </ScrollReveal>
+
+                                {/* STATS BAR */}
+                                <ScrollReveal direction="up">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                        {t.stats.map((s, i) => (
+                                            <div key={i} className="bg-neutral-900/30 border border-white/5 rounded-2xl p-6 text-center hover:border-[#A855F7]/30 transition-all group">
+                                                <div className="text-3xl font-black text-white mb-1 group-hover:text-[#A855F7] transition-colors">{s.num}</div>
+                                                <div className="text-xs text-gray-400 uppercase tracking-wider">{s.label}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ScrollReveal>
+
+                                <ScrollReveal direction="left">
+                                    <div className="relative">
+                                        <div className="absolute -inset-10 bg-[#A855F7]/10 blur-[100px] rounded-full pointer-events-none"></div>
+                                        <h2 className="text-4xl font-bold text-center mb-4 relative z-10">{pricingMeta.title}</h2>
+                                        <p className="text-center text-gray-400 mb-12 max-w-lg mx-auto relative z-10">{pricingMeta.sub}</p>
+                                        <div className="grid md:grid-cols-3 gap-6 relative z-10">
+                                            {plans.map((p,i)=>{
+                                                const discountPct = Math.round((1 - p.price/p.origPrice)*100);
+                                                return (
+                                                <div key={i} className="plan-card-glow p-8 rounded-[24px] bg-[#0a0a0a] border border-white/10 cursor-pointer relative overflow-hidden group">
+                                                    <div className="absolute top-0 right-0 w-20 h-20 bg-[#A855F7]/10 blur-xl rounded-full -mr-10 -mt-10 transition-all group-hover:bg-[#A855F7]/20"></div>
+                                                    <h3 className="plan-title text-xl font-bold mb-2 text-white transition-all duration-300">{p.name}</h3>
+                                                    
+                                                    {/* DISCOUNT BADGE */}
+                                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                        <span className="text-gray-500 line-through text-sm">{pricingMeta.symbol}{p.origPrice}</span>
+                                                        <span className="bg-[#A855F7]/20 text-[#A855F7] text-[10px] px-2 py-0.5 rounded-full font-bold">{discountPct}% OFF</span>
+                                                    </div>
+
+                                                    <div className="flex items-baseline gap-1 mb-6">
+                                                        <span className="text-3xl font-bold text-white">{pricingMeta.symbol}{p.price}</span>
+                                                        <span className="text-gray-500 text-xs">/mo</span>
+                                                    </div>
+                                                    <div className="h-[1px] w-full bg-white/5 mb-6"></div>
+                                                    <ul className="space-y-4 mb-8">
+                                                        {p.features.map(f=><li key={f} className="text-gray-300 text-sm flex gap-3 items-start"><span className="text-[#A855F7] bg-[#A855F7]/10 w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">✓</span> {f}</li>)}
+                                                    </ul>
+                                                    <div className="flex gap-2">
+                                                        <button onClick={(e)=>{e.stopPropagation(); setViewDetailsPlan(p)}} className="flex-1 py-3 rounded-xl border border-white/20 text-white font-bold text-sm hover:border-[#A855F7] hover:text-[#A855F7] transition-all duration-300">Details</button>
+                                                        <button onClick={()=>window.openNIEVROXAuth(p.name)} className="flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm hover:bg-[#A855F7] hover:text-white transition-all duration-300 shadow-lg">Get Started</button>
+                                                    </div>
+                                                </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </ScrollReveal>
+
+                                <ScrollReveal direction="right">
+                                    <ComparisonTable />
+                                </ScrollReveal>
+
+                                <ScrollReveal direction="left">
+                                    <div className="max-w-3xl mx-auto">
+                                        <h2 className="text-3xl font-bold mb-8 text-center">FAQ</h2>
+                                        <div className="space-y-4">
+                                            {t.faq.map((f,i) => <FAQItem key={i} q={f.q} a={f.a} />)}
+                                        </div>
+                                    </div>
+                                </ScrollReveal>
+                            </div>
+                            
+                            <footer className="py-24 text-center border-t border-white/5 mt-32 relative overflow-hidden bg-black flex flex-col items-center justify-center">
+                                <ScrollReveal direction="up">
+                                    <div className="relative z-10 mb-8 select-none"><ScrollFloat>NIEVROX</ScrollFloat></div>
+                                </ScrollReveal>
+                                <div className="relative z-10 flex gap-6 mb-16 overflow-hidden p-4">
+                                    <motion.button initial={{x: 50, opacity: 0}} whileInView={{x: 0, opacity: 1}} viewport={{once: false}} transition={{duration: 1.2, ease: "easeOut"}} onClick={()=>window.openNIEVROXAuth('Enterprise')} className="px-8 py-3 rounded-full bg-[#A855F7] text-black font-bold hover:bg-[#9333ea] transition-all shadow-lg hover:scale-105">
+                                            Book Demo
+                                    </motion.button>
+                                    <motion.button 
+                                        initial={{x: -50, opacity: 0}} 
+                                        whileInView={{x: 0, opacity: 1}} 
+                                        viewport={{once: false}} 
+                                        transition={{duration: 1.2, ease: "easeOut"}} 
+                                        onClick={openContactSales}
+                                        className="px-8 py-3 rounded-full border border-white/20 hover:border-white text-gray-300 hover:text-white transition-all flex items-center justify-center cursor-pointer"
+                                    >
+                                            Contact Sales
+                                    </motion.button>
+                                </div>
+                                <div className="flex gap-8 text-gray-500 text-xs uppercase tracking-wider relative z-10 mb-8">
+                                    <button onClick={()=>setLegalModal('privacy')} className="hover:text-[#A855F7] transition-colors cursor-pointer bg-transparent border-0 outline-none">Privacy Policy</button>
+                                    <button onClick={()=>setLegalModal('terms')} className="hover:text-[#A855F7] transition-colors cursor-pointer bg-transparent border-0 outline-none">Terms & Conditions</button>
+                                    <button onClick={()=>setLegalModal('copyright')} className="hover:text-[#A855F7] transition-colors cursor-pointer bg-transparent border-0 outline-none">Copyright</button>
+                                </div>
+                                <div className="relative z-10 mb-4">
+                                    <a href="https://wa.me/919543204277?text=Hi%20NIEVROX%2C%20I%27m%20interested%20in%20your%20automation%20plans!" target="_blank" rel="noopener" className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#25D366]/10 border border-[#25D366]/30 text-[#25D366] text-xs font-semibold hover:bg-[#25D366]/20 transition-all">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                        Chat with us on WhatsApp
+                                    </a>
+                                </div>
+                                <p className="text-gray-600 text-xs relative z-10">© {new Date().getFullYear()} NIEVROX. All rights reserved.</p>
+                                <div className="absolute right-0 top-0 w-full h-full z-0 opacity-20 pointer-events-none"><LaserFlow color="#A855F7" flowSpeed={0.2} wispDensity={2.0} verticalSizing={4.0} horizontalBeamOffset={0.305} verticalBeamOffset={0.00} /></div>
+                            </footer>
+                        </motion.main>
+                    )}
+
+                    {/* Modals */}
+                    <AnimatePresence>
+                        {/* Success Modal */}
+                        {successModal && <SuccessModal onClose={()=>setSuccessModal(false)} />}
+                        
+                        {/* Checkout Modal */}
+                        {showModal && (
+                            <CheckoutModal plan={showModal} onClose={()=>setShowModal(null)} onSuccess={handleSuccess} region={region} />
+                        )}
+                        {/* Contact Modal */}
+                        {contactModal && (
+                            <ContactModal onClose={()=>setContactModal(false)} onSuccess={handleSuccess} />
+                        )}
+                        {/* Legal Modals */}
+                        {legalModal && <LegalModal type={legalModal} onClose={()=>setLegalModal(null)} />}
+                        
+                        {/* View Details Modal */}
+                        {viewDetailsPlan && (
+                            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4" onClick={()=>setViewDetailsPlan(null)}>
+                                <motion.div initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}} exit={{scale:0.9,opacity:0}} onClick={e=>e.stopPropagation()} className="bg-[#0a0a0a] border border-[#A855F7]/30 p-8 rounded-3xl max-w-md w-full shadow-2xl relative overflow-hidden">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h2 className="text-2xl font-bold text-white">{viewDetailsPlan.name} Features</h2>
+                                        <button onClick={()=>setViewDetailsPlan(null)} className="text-gray-400 hover:text-white">✕</button>
+                                    </div>
+                                    <ul className="space-y-3 mb-8">
+                                        {viewDetailsPlan.allFeatures.map((feature, idx) => (
+                                            <li key={idx} className="flex gap-3 text-sm text-gray-300">
+                                                <span className="text-[#A855F7]">✓</span> {feature}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <button onClick={()=>{setViewDetailsPlan(null); window.openNIEVROXAuth(viewDetailsPlan.name);}} className="w-full py-3 rounded-xl bg-[#A855F7] text-white font-bold text-sm shadow-lg hover:shadow-[#A855F7]/20 transition-all">Get Started with {viewDetailsPlan.name}</button>
+                                </motion.div>
+                            </div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            );
+        }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NIEVROX AUTH FLOW — Login / Signup / Onboarding Entry Gate
+// ═══════════════════════════════════════════════════════════════════════════
+
+// PHASE-1: API base — auto-detects localhost vs production
+const API = 'http://localhost:5000/api';
+
+async function apiCall(method, path, body) {
+  const session = JSON.parse(localStorage.getItem('NIEVROX_session') || '{}');
+
+  const opts = {
+    method,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(session.token ? { Authorization: 'Bearer ' + session.token } : {})
+    }
+  };
+
+  if (body) opts.body = JSON.stringify(body);
+
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+
+  return data;
+}
+
+// Global state
+window._NIEVROXAuthState = { open: false, plan: null, prefillEmail: '', onSuccess: null };
+
+window.openNIEVROXAuth = function(plan, prefillEmail) {
+  window._NIEVROXAuthState.plan = plan || 'trial';
+  window._NIEVROXAuthState.prefillEmail = prefillEmail || '';
+  window._NIEVROXAuthState.open = true;
+  if (window._NIEVROXAuthRender) window._NIEVROXAuthRender();
+};
+
+// ── AUTH MODAL ──────────────────────────────────────────────────────────────
+function NIEVROXAuthModal({ onAuthSuccess }) {
+  const [mode, setMode] = React.useState('login'); // login | signup
+  const [form, setForm] = React.useState({ name: '', email: window._NIEVROXAuthState.prefillEmail || '', password: '' });
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const [info, setInfo] = React.useState('');
+
+  const inp = (field, label, type='text') => (
+    React.createElement('div', { key: field, style: { marginBottom: 14 } },
+      React.createElement('label', { style: { color: 'rgba(200,200,220,0.55)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.9px', display: 'block', marginBottom: 5, fontFamily: "'Space Grotesk',sans-serif" } }, label),
+      React.createElement('input', {
+        type, value: form[field],
+        onChange: e => setForm(p => ({ ...p, [field]: e.target.value })),
+        onKeyDown: e => { if (e.key === 'Enter') handleSubmit(); },
+        style: { width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(168,85,247,0.25)', borderRadius: 10, padding: '11px 14px', color: 'white', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: "'Space Grotesk',sans-serif" }
+      })
+    )
+  );
+
+  async function handleSubmit() {
+    setError(''); setLoading(true);
+    try {
+      // Both signup and login return { token, user, organization } immediately
+      const endpoint = mode === 'signup' ? '/auth/signup' : '/auth/login';
+      const body = mode === 'signup'
+        ? { name: form.name, email: form.email, password: form.password, organizationName: form.name + "'s Business" }
+        : { email: form.email, password: form.password };
+
+      const res = await apiCall('POST', endpoint, body);
+
+      if (!res.token || !res.user) {
+        throw new Error(res.message || 'Authentication failed');
+      }
+
+
+      // Save session to localStorage so apiCall can attach Bearer token
+      localStorage.setItem('NIEVROX_session', JSON.stringify({
+        token:        res.token,
+        user:         res.user,
+        organization: res.organization || {},
+        plan:         (res.organization && res.organization.plan) || window._NIEVROXAuthState.plan || 'trial',
+        demo:         (res.organization && res.organization.demo) || false,
+        expires:      Date.now() + 7 * 24 * 60 * 60 * 1000,
+      }));
+
+      // Also store token under plain key for dashboard compatibility
+      localStorage.setItem('token', res.token);
+await new Promise(r => setTimeout(r, 500));
+window.location.href = "NIEVROX-UserDashboard.html";
+      // Hand off to NIEVROXAuthFlow which checks onboarding state and shows wizard
+      onAuthSuccess(res.user);
+
+    } catch (e) {
+      setError(e.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return React.createElement('div', {
+    style: { position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(12px)', padding: 16 },
+    onClick: () => { window._NIEVROXAuthState.open = false; if (window._NIEVROXAuthRender) window._NIEVROXAuthRender(); }
+  },
+    React.createElement('div', {
+      onClick: e => e.stopPropagation(),
+      style: { background: '#08050f', border: '1px solid rgba(168,85,247,0.3)', borderRadius: 24, padding: 32, width: '100%', maxWidth: 400, boxShadow: '0 0 80px rgba(168,85,247,0.18)', position: 'relative' }
+    },
+      // Top accent line
+      React.createElement('div', { style: { position: 'absolute', top: 0, left: '15%', right: '15%', height: 1, background: 'linear-gradient(90deg,transparent,#A855F7,transparent)' } }),
+      // Logo
+      React.createElement('div', { style: { textAlign: 'center', marginBottom: 24 } },
+        React.createElement('div', { style: { fontSize: 28, fontWeight: 900, fontFamily: "'Exo 2',sans-serif", letterSpacing: '-1px' } },
+          React.createElement('span', { style: { color: 'white' } }, 'NIEVRO'),
+          React.createElement('span', { style: { color: '#A855F7' } }, 'X')
+        ),
+        React.createElement('p', { style: { color: 'rgba(200,200,220,0.45)', fontSize: 11, fontFamily: "'Space Grotesk',sans-serif", marginTop: 2 } },
+          window._NIEVROXAuthState.plan && window._NIEVROXAuthState.plan !== 'trial' ? `Getting started with ${window._NIEVROXAuthState.plan} plan` : 'WhatsApp Automation Platform'
+        )
+      ),
+      // Mode tabs
+      React.createElement('div', { style: { display: 'flex', gap: 8, marginBottom: 24, background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: 4 } },
+        ['login','signup'].map(m => React.createElement('button', {
+          key: m, onClick: () => { setMode(m); setError(''); },
+          style: { flex: 1, padding: '9px', borderRadius: 9, background: mode === m ? 'rgba(168,85,247,0.2)' : 'transparent', border: mode === m ? '1px solid rgba(168,85,247,0.4)' : '1px solid transparent', color: mode === m ? '#c084fc' : 'rgba(200,200,220,0.45)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Space Grotesk',sans-serif", transition: 'all .2s' }
+        }, m === 'login' ? 'Sign In' : 'Create Account'))
+      ),
+
+      // Fields
+      mode === 'signup' && inp('name', 'Full Name'),
+      inp('email', 'Email Address', 'email'),
+      inp('password', 'Password', 'password'),
+      // Error / info
+      error && React.createElement('p', { style: { color: '#f87171', fontSize: 12, marginBottom: 10, fontFamily: "'Space Grotesk',sans-serif" } }, '⚠ ' + error),
+      info && React.createElement('p', { style: { color: '#34d399', fontSize: 12, marginBottom: 10, fontFamily: "'Space Grotesk',sans-serif" } }, '✓ ' + info),
+      // Submit
+      React.createElement('button', {
+        onClick: handleSubmit, disabled: loading,
+        style: { width: '100%', padding: '13px', borderRadius: 12, background: loading ? 'rgba(168,85,247,0.4)' : 'linear-gradient(135deg,#A855F7,#9333ea)', border: 'none', color: 'white', fontWeight: 800, fontSize: 14, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'Space Grotesk',sans-serif", boxShadow: '0 0 28px rgba(168,85,247,0.3)', marginBottom: 12 }
+      }, loading ? '...' : mode === 'signup' ? 'Create Account →' : 'Sign In →'),
+      // Toggle
+      React.createElement('p', { style: { textAlign: 'center', color: 'rgba(200,200,220,0.4)', fontSize: 12, fontFamily: "'Space Grotesk',sans-serif" } },
+        mode === 'login' ? "Don't have an account? " : "Already have an account? ",
+        React.createElement('span', { onClick: () => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); }, style: { color: '#c084fc', cursor: 'pointer', textDecoration: 'underline' } },
+          mode === 'login' ? 'Sign up free' : 'Sign in'
+        )
+      )
+    )
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PHASE-1: AUTH FLOW CONTROLLER
+// Manages: auth modal open/close → onboarding wizard → dashboard redirect
+// ─────────────────────────────────────────────────────────────────────────────
+function NIEVROXAuthFlow() {
+  const [open,          setOpen]          = React.useState(false);
+  const [showOnboarding, setShowOnboarding] = React.useState(false);
+  const [user,          setUser]          = React.useState(null);
+  const [appLoading,    setAppLoading]    = React.useState(false);
+
+  // Allow external JS to open the modal
+  window._NIEVROXAuthRender = () => {
+    setOpen(window._NIEVROXAuthState.open);
+  };
+
+  // Called after signup or login succeeds — checks onboarding state
+  function handleAuthSuccess(u) {
+    setUser(u);
+    setOpen(false);
+    window._NIEVROXAuthState.open = false;
+    setAppLoading(true);
+
+    // apiCall auto-attaches Authorization: Bearer token from localStorage
+    apiCall('GET', '/onboarding/state')
+      .then(data => {
+        setAppLoading(false);
+        // Dashboard handles onboarding wizard — always redirect there
+        window.location.href = 'NIEVROX-UserDashboard.html';
+      })
+      .catch(() => {
+        // Backend unreachable — dashboard handles onboarding itself, redirect there directly
+        setAppLoading(false);
+        window.location.href = 'NIEVROX-UserDashboard.html';
+      });
+  }
+
+  function handleOnboardingComplete() {
+    window.location.href = 'NIEVROX-UserDashboard.html';
+  }
+
+  // Loading spinner while checking onboarding state
+  if (appLoading) {
+    return React.createElement('div', {
+      style: { position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column',
+               alignItems: 'center', justifyContent: 'center',
+               background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(14px)' }
+    },
+      React.createElement('div', {
+        style: { width: 48, height: 48, border: '3px solid rgba(168,85,247,0.25)',
+                 borderTopColor: '#A855F7', borderRadius: '50%',
+                 animation: 'spin 0.8s linear infinite', marginBottom: 18 }
+      }),
+      React.createElement('p', {
+        style: { color: 'rgba(200,200,220,0.6)', fontSize: 13,
+                 fontFamily: "'Space Grotesk',sans-serif" }
+      }, 'Setting up your workspace…')
+    );
+  }
+
+  if (!open && !showOnboarding) return null;
+
+  if (showOnboarding && user) {
+    return React.createElement(NIEVROXOnboardingWizard, {
+      user, plan: window._NIEVROXAuthState.plan, onComplete: handleOnboardingComplete
+    });
+  }
+
+  if (open) {
+    return React.createElement(NIEVROXAuthModal, { onAuthSuccess: handleAuthSuccess });
+  }
+
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PHASE-1: ONBOARDING WIZARD — 5 steps
+// Step 1: Business Name
+// Step 2: Business Category
+// Step 3: Bot Name
+// Step 4: WhatsApp Number
+// Step 5: Finish
+// POST /api/onboarding/complete → creates bot (inactive) → redirect dashboard
+// ─────────────────────────────────────────────────────────────────────────────
+function NIEVROXOnboardingWizard({ user, plan, onComplete }) {
+  const [step,    setStep]    = React.useState(1);
+  const [loading, setLoading] = React.useState(false);
+  const [error,   setError]   = React.useState('');
+  const [data,    setData]    = React.useState({
+    businessName:    '',
+    category:        '',
+    botName:         '',
+    whatsappNumber:  '',
+  });
+
+  const TOTAL_STEPS = 5;
+  const STEP_LABELS = ['Business', 'Category', 'Bot Name', 'WhatsApp', 'Finish'];
+  const STEP_ICONS  = ['🏢', '🏷️', '🤖', '💬', '🚀'];
+
+  const CATEGORIES = [
+    'Restaurant', 'Salon', 'Repair Service',
+    'Clinic', 'Gym', 'Consultant', 'Service Business',
+  ];
+
+  // Shared input style
+  const inputStyle = {
+  width: '100%',
+  background: 'rgba(255,255,255,0.06)',
+  border: '1.5px solid rgba(168,85,247,0.35)',   // stronger border
+  borderRadius: 10,
+  padding: '13px 14px',                          // taller input
+  color: '#f0f0fc',                              // better contrast
+  fontSize: 14,
+  outline: 'none',
+  boxSizing: 'border-box',
+  fontFamily: "'Space Grotesk',sans-serif"
+};
+
+  function Field(label, field, type, placeholder) {
+    return React.createElement('div', { style: { marginBottom: 16 } },
+      React.createElement('label', {
+   style: {
+  color: 'rgba(220,220,255,0.75)',   // brighter label
+  fontSize: 11,                      // slightly bigger
+  fontWeight: 700,
+  textTransform: 'uppercase',
+  letterSpacing: '.9px',
+  display: 'block',
+  marginBottom: 6,
+  fontFamily: "'Space Grotesk',sans-serif"
+}
+      }, label),
+      React.createElement('input', {
+        type: type || 'text',
+        defaultValue: data[field] || "",
+        placeholder,
+        onChange: e => setData(p => ({ ...p, [field]: e.target.value })),
+        style: inputStyle,
+      })
+    );
+  }
+
+  async function handleFinish() {
+    setError(''); setLoading(true);
+    try {
+      const res = await apiCall('POST', '/onboarding/complete', {
+        business_name:    data.businessName.trim(),
+        category:         data.category,
+        bot_name:         data.botName.trim(),
+        whatsapp_number:  data.whatsappNumber.trim(),
+      });
+      // Update session storage with business info
+      try {
+        const sess = JSON.parse(localStorage.getItem('NIEVROX_session') || '{}');
+        sess.onboarding = { businessName: data.businessName, category: data.category,
+                            botName: data.botName, botStatus: 'inactive' };
+        localStorage.setItem('NIEVROX_session', JSON.stringify(sess));
+      } catch(_) {}
+      await new Promise(r => setTimeout(r, 500));
+      onComplete();
+    } catch (e) { setError(e.message); }
+    finally { setLoading(false); }
+  }
+
+  function canProceed() {
+    if (step === 1) return (data.businessName || '').trim().length >= 2;
+if (step === 3) return (data.botName || '').trim().length >= 2;
+if (step === 4) return (data.whatsappNumber || '').trim().length >= 7;
+    return true;
+  }
+
+  function renderStep() {
+    const h2 = (txt) => React.createElement('h2', {
+      style: { color: 'white', fontSize: 19, fontWeight: 800, marginBottom: 6,
+               fontFamily: "'Orbitron',sans-serif" }
+    }, txt);
+    const sub = (txt) => React.createElement('p', {
+      style: { color: 'rgba(200,200,220,0.5)', fontSize: 12,
+               marginBottom: 22, fontFamily: "'Space Grotesk',sans-serif" }
+    }, txt);
+
+    switch (step) {
+      case 1:
+        return React.createElement('div', null,
+          h2('Business Name'),
+          sub('What is your business called?'),
+          Field('Business Name', 'businessName', 'text', 'e.g. Glamour Salon')
+        );
+
+      case 2:
+        return React.createElement('div', null,
+          h2('Business Category'),
+          sub('Choose the category that best describes your business.'),
+          React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } },
+            CATEGORIES.map(cat =>
+              React.createElement('button', {
+                key: cat,
+                onClick: () => setData(p => ({ ...p, category: cat })),
+                style: {
+                  padding: '11px 8px', borderRadius: 10, cursor: 'pointer',
+                  background: data.category === cat ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${data.category === cat ? 'rgba(168,85,247,0.55)' : 'rgba(255,255,255,0.08)'}`,
+                  color: data.category === cat ? '#c084fc' : 'rgba(200,200,220,0.65)',
+                  fontSize: 12, fontWeight: data.category === cat ? 700 : 400,
+                  fontFamily: "'Space Grotesk',sans-serif",
+                  transition: 'all 0.18s',
+                }
+              }, cat)
+            )
+          )
+        );
+
+      case 3:
+        return React.createElement('div', null,
+          h2('Bot Name'),
+          sub('Give your WhatsApp AI assistant a name your customers will see.'),
+          Field('Bot Name', 'botName', 'text', 'e.g. Glamour Assistant')
+        );
+
+      case 4:
+        return React.createElement('div', null,
+          h2('WhatsApp Number'),
+          sub('Enter the WhatsApp Business number for your bot. You can connect it later.'),
+          Field('WhatsApp Number', 'whatsappNumber', 'tel', '+91 98765 00000'),
+          React.createElement('p', {
+            style: { color: 'rgba(200,200,220,0.35)', fontSize: 11, marginTop: 8,
+                     fontFamily: "'Space Grotesk',sans-serif" }
+          }, '⚠ WhatsApp API connection happens after onboarding.')
+        );
+
+      case 5:
+  return React.createElement(
+    'div',
+    { style: { textAlign: 'center', paddingTop: 10 } },
+
+    React.createElement(
+      'div',
+      { style: { fontSize: 48, marginBottom: 16 } },
+      '🎉'
+    ),
+
+    React.createElement(
+      'h2',
+      {
+        style: {
+          color: 'white',
+          fontSize: 20,
+          fontWeight: 800,
+          marginBottom: 10,
+          fontFamily: "'Orbitron',sans-serif"
+        }
+      },
+      "You're all set!"
+    ),
+
+    React.createElement(
+      'div',
+      {
+        style: {
+          background: 'rgba(168,85,247,0.07)',
+          border: '1px solid rgba(168,85,247,0.2)',
+          borderRadius: 12,
+          padding: '16px 20px',
+          marginBottom: 18,
+          textAlign: 'left'
+        }
+      },
+
+      ...[
+        ['Business', data.businessName],
+        ['Category', data.category],
+        ['Bot Name', data.botName],
+        ['WhatsApp', data.whatsappNumber]
+      ].map(([l, v]) =>
+        React.createElement(
+          'div',
+          {
+            key: l,
+            style: {
+              display: 'flex',
+              justifyContent: 'space-between',
+              padding: '6px 0',
+              borderBottom: '1px solid rgba(168,85,247,0.1)'
+            }
+          },
+
+          React.createElement(
+            'span',
+            {
+              style: {
+                color: 'rgba(200,200,220,0.5)',
+                fontSize: 12,
+                fontFamily: "'Space Grotesk',sans-serif"
+              }
+            },
+            l
+          ),
+
+          React.createElement(
+            'span',
+            {
+              style: {
+                color: 'white',
+                fontSize: 12,
+                fontWeight: 600,
+                fontFamily: "'Space Grotesk',sans-serif"
+              }
+            },
+            v || '—'
+          )
+        )
+      )
+    ),
+
+    React.createElement(
+      'p',
+      {
+        style: {
+          color: 'rgba(200,200,220,0.4)',
+          fontSize: 11,
+          fontFamily: "'Space Grotesk',sans-serif"
+        }
+      },
+      'Plan: Trial  ·  Bot Status: Inactive  ·  WhatsApp: Not Connected'
+    )
+  );
+default:
+  return null;
+}
+
+//
+// overlay container
+return React.createElement('div', {
+    style: { position: 'fixed', inset: 0, zIndex: 9999, display: 'flex',
+             alignItems: 'center', justifyContent: 'center',
+             background: 'transparent', backdropFilter: 'blur(14px)', padding: 16 }
+  },
+    React.createElement('div', {
+      style: { background: '#08050f', border: '1px solid rgba(168,85,247,0.3)', borderRadius: 24,
+               padding: '32px 28px', width: '100%', maxWidth: 440,
+               boxShadow: '0 0 90px rgba(168,85,247,0.18)', position: 'relative' }
+    },
+      // Top gradient line
+      React.createElement('div', {
+        style: { position: 'absolute', top: 0, left: '15%', right: '15%', height: 1,
+                 background: 'linear-gradient(90deg,transparent,#A855F7,transparent)' }
+      }),
+
+      // Logo
+      React.createElement('div', { style: { textAlign: 'center', marginBottom: 28 } },
+        React.createElement('div', { style: { display: 'inline-flex', alignItems: 'baseline' } },
+          React.createElement('span', { style: { fontSize: 26, fontWeight: 900, color: '#f0eeff', letterSpacing: '-2px' } }, 'NIEVRO'),
+          React.createElement('span', { style: { fontSize: 30, fontWeight: 900, color: '#A855F7', letterSpacing: '-2px', textShadow: '0 0 24px #A855F7' } }, 'X')
+        ),
+        React.createElement('p', { style: { color: 'rgba(255,255,255,0.4)', fontSize: 10, letterSpacing: '3px', textTransform: 'uppercase', marginTop: 2, fontFamily: "'Space Grotesk',sans-serif" } }, 'Business Setup')
+      ),
+
+      // Step progress dots
+      React.createElement('div', {
+        style: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 28 }
+      },
+        STEP_LABELS.map((label, i) => {
+          const n    = i + 1;
+          const done = step > n;
+          const active = step === n;
+          return React.createElement('div', { key: n, style: { display: 'flex', alignItems: 'center' } },
+            React.createElement('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 } },
+              React.createElement('div', {
+                style: {
+                  width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', fontSize: done ? 13 : 11, fontWeight: 900,
+                  background: done ? '#A855F7' : active ? 'rgba(168,85,247,0.18)' : 'rgba(255,255,255,0.04)',
+                  border: `2px solid ${done || active ? '#A855F7' : 'rgba(255,255,255,0.1)'}`,
+                  boxShadow: active ? '0 0 18px rgba(168,85,247,0.4)' : 'none',
+                  color: done ? '#fff' : active ? '#c084fc' : 'rgba(200,200,220,0.35)',
+                  transition: 'all 0.3s',
+                }
+              }, done ? '✓' : STEP_ICONS[i]),
+              React.createElement('span', {
+                style: { fontSize: 9, fontWeight: active ? 700 : 400,
+                         color: active ? '#c084fc' : 'rgba(200,200,220,0.3)',
+                         whiteSpace: 'nowrap', fontFamily: "'Space Grotesk',sans-serif" }
+              }, label)
+            ),
+            i < STEP_LABELS.length - 1 && React.createElement('div', {
+              style: { width: 38, height: 1, marginBottom: 20, transition: 'background 0.3s',
+                       background: step > n ? '#A855F7' : 'rgba(255,255,255,0.08)' }
+            })
+          );
+        })
+      ),
+
+      // Step content
+      React.createElement('div', { key: step, style: { minHeight: 200 } },
+        renderStep()
+      ),
+
+      // Error
+      error && React.createElement('p', {
+        style: { color: '#f87171', fontSize: 12, marginTop: 12,
+                 fontFamily: "'Space Grotesk',sans-serif" }
+      }, '⚠ ' + error),
+
+      // Navigation buttons
+      React.createElement('div', { style: { display: 'flex', gap: 10, marginTop: 24 } },
+        step > 1 && React.createElement('button', {
+          onClick: () => { setError(''); setStep(s => s - 1); },
+          style: { flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                   borderRadius: 12, padding: '12px', color: 'rgba(200,200,220,0.6)', fontSize: 13,
+                   fontWeight: 600, cursor: 'pointer', fontFamily: "'Space Grotesk',sans-serif" }
+        }, '← Back'),
+
+        step < TOTAL_STEPS && React.createElement('button', {
+          onClick: () => { setError(''); setStep(s => s + 1); },
+          disabled: !canProceed(),
+          style: {
+            flex: 2,
+            background: canProceed() ? 'linear-gradient(135deg,#A855F7,#9333ea)' : 'rgba(168,85,247,0.2)',
+            border: 'none', borderRadius: 12, padding: '12px', color: 'white', fontSize: 13,
+            fontWeight: 800, cursor: canProceed() ? 'pointer' : 'not-allowed',
+            fontFamily: "'Space Grotesk',sans-serif",
+            boxShadow: canProceed() ? '0 0 24px rgba(168,85,247,0.3)' : 'none',
+            transition: 'all 0.2s',
+          }
+        }, 'Continue →'),
+
+        step === TOTAL_STEPS && React.createElement('button', {
+          onClick: handleFinish,
+          disabled: loading,
+          style: {
+            flex: 2,
+            background: loading ? 'rgba(16,185,129,0.3)' : 'linear-gradient(135deg,#10b981,#059669)',
+            border: 'none', borderRadius: 12, padding: '12px', color: 'white', fontSize: 14,
+            fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer',
+            fontFamily: "'Space Grotesk',sans-serif",
+            boxShadow: loading ? 'none' : '0 0 24px rgba(16,185,129,0.3)',
+          }
+        },
+          loading
+            ? React.createElement('span', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } },
+                React.createElement('div', { style: { width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' } }),
+                'Setting up…'
+              )
+            : '🚀 Launch Dashboard'
+        )
+      ),
+
+      // Step counter
+      React.createElement('p', {
+        style: { textAlign: 'center', marginTop: 14, color: 'rgba(200,200,220,0.28)', fontSize: 11,
+                 fontFamily: "'Space Grotesk',sans-serif" }
+      }, `Step ${step} of ${TOTAL_STEPS}`)
+    )
+
+  );
+};
+}
+
+// ── PHASE-1: Mount auth flow into its own root ────────────────────────────
+// This ensures NIEVROXAuthFlow (modal + onboarding wizard) renders independently
+// of the main marketing page App() without any conflicts.
+const authRoot = document.getElementById('NIEVROX-auth-root');
+if (authRoot) {
+  const authReactRoot = ReactDOM.createRoot(authRoot);
+  authReactRoot.render(React.createElement(NIEVROXAuthFlow));
+}
+
+// ── Mount main marketing page App() ───────────────────────────────────────
+// Guard: only mount if #root exists and is empty (prevents double-mount)
+const _mainRoot = document.getElementById('root');
+if (_mainRoot) {
+  const root = ReactDOM.createRoot(_mainRoot);
+  root.render(<App />);
+}
+    </script>
+</body>
+</html>
